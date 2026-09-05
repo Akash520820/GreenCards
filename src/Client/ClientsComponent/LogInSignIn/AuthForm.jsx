@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import FormInput from './FormInput';
 import AuthToggleText from './AuthToggleText';
 import { useClientAuth } from '../../../context/ClientAuthContext';
+import { compressImage } from '../../../utils/compressImage';
 
 const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingProduct }) => {
   const { login, register, verifyOtp, resendOtp } = useClientAuth();
@@ -15,6 +16,9 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
     password: '',
   });
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [compressingAvatar, setCompressingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   // Once registration sends an OTP, we switch into this step to collect it.
@@ -27,13 +31,33 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleAvatarChange = (e) => {
-    setAvatarFile(e.target.files[0] || null);
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      return;
+    }
+
+    setCompressingAvatar(true);
+    try {
+      const compressed = await compressImage(file);
+      setAvatarFile(compressed);
+      setAvatarPreview(URL.createObjectURL(compressed));
+    } catch {
+      // If compression fails for any reason, fall back to the original file
+      // rather than blocking signup entirely.
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    } finally {
+      setCompressingAvatar(false);
+    }
   };
 
   const resetForm = () => {
     setFormData({ fullName: '', userName: '', email: '', phone: '', password: '' });
     setAvatarFile(null);
+    setAvatarPreview(null);
     setAwaitingOtp(false);
     setOtp('');
   };
@@ -191,24 +215,31 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
 
       {!isLogin && (
         <>
-          <FormInput
-            label="Full Name"
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            placeholder="type here"
-            autoComplete="name"
-          />
-          <FormInput
-            label="Username"
-            type="text"
-            name="userName"
-            value={formData.userName}
-            onChange={handleChange}
-            placeholder="type here"
-            autoComplete="username"
-          />
+          <div className="auth-form-row">
+            <FormInput
+              label="Full Name"
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="type here"
+              autoComplete="name"
+            />
+            <FormInput
+              label="Username"
+              type="text"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              placeholder="type here"
+              autoComplete="username"
+            />
+          </div>
+        </>
+      )}
+
+      {!isLogin && (
+        <div className="auth-form-row">
           <FormInput
             label="Phone"
             type="tel"
@@ -219,19 +250,31 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
             autoComplete="tel"
             inputMode="tel"
           />
-        </>
+          <FormInput
+            label={isLogin ? 'Email or Username' : 'Email'}
+            type={isLogin ? 'text' : 'email'}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="type here"
+            autoComplete={isLogin ? 'username' : 'email'}
+            inputMode={isLogin ? undefined : 'email'}
+          />
+        </div>
       )}
 
-      <FormInput
-        label={isLogin ? 'Email or Username' : 'Email'}
-        type={isLogin ? 'text' : 'email'}
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="type here"
-        autoComplete={isLogin ? 'username' : 'email'}
-        inputMode={isLogin ? undefined : 'email'}
-      />
+      {isLogin && (
+        <FormInput
+          label={isLogin ? 'Email or Username' : 'Email'}
+          type={isLogin ? 'text' : 'email'}
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="type here"
+          autoComplete={isLogin ? 'username' : 'email'}
+          inputMode={isLogin ? undefined : 'email'}
+        />
+      )}
 
       <FormInput
         label="Password"
@@ -244,15 +287,36 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
       />
 
       {!isLogin && (
-        <div className="auth-form-input-group">
-          <label>Profile Photo</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            className="auth-form-input"
-            required
-          />
+        <div className="auth-form-avatar-row">
+          <button
+            type="button"
+            className="auth-form-avatar-picker"
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Choose profile photo"
+          >
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Avatar preview" />
+            ) : (
+              <span className="auth-form-avatar-placeholder">+</span>
+            )}
+          </button>
+          <div>
+            <span className="auth-form-avatar-label">
+              {compressingAvatar
+                ? 'Processing photo…'
+                : avatarFile
+                ? avatarFile.name
+                : 'Add a profile photo'}
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              style={{ display: 'none' }}
+              required
+            />
+          </div>
         </div>
       )}
 
