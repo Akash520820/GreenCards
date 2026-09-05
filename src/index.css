@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap'); /* add this top*/
+
+*{
+  font-family: "Outfit", sans-serif;
+}
+
+/* ============================================================
+   Web Interface Guidelines — global baseline
+   (accessibility, focus states, touch, reduced motion)
+   ============================================================ */
+
+/* Respect the user's OS-level "reduce motion" preference for any
+   CSS transition/animation that isn't driven by Framer Motion —
+   Framer Motion animations are separately guarded per-component
+   via the useReducedMotion() hook. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible focus ring for keyboard users only — never on mouse click */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Compound controls (e.g. a labeled checkbox row) get one ring
+   around the whole group instead of just the inner input */
+.focus-within-ring:focus-within {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+button,
+a {
+  touch-action: manipulation; /* removes the double-tap-to-zoom delay on mobile */
+  -webkit-tap-highlight-color: rgba(76, 175, 80, 0.15);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
