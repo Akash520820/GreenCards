@@ -7,7 +7,7 @@
 // (see admin.controller.js -> approveSeller), so this page never assumes
 // approval — it just reports whatever status the backend returns.
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { FiCheckCircle, FiClock, FiXCircle, FiPauseCircle, FiUpload } from 'react-icons/fi';
 import { useClientAuth } from '../../context/ClientAuthContext';
@@ -46,7 +46,7 @@ const STATUS_META = {
     icon: <FiCheckCircle />,
     color: '#4CAF50',
     title: "You're an approved seller!",
-    text: 'Your account now has seller access. Log in from the seller panel to start listing products.',
+    text: 'Your account now has seller access.',
   },
   rejected: {
     icon: <FiXCircle />,
@@ -185,6 +185,9 @@ const BecomeSeller = () => {
             </div>
             <h2>{STATUS_META.approved.title}</h2>
             <p>{STATUS_META.approved.text}</p>
+            <Link to="/seller/auth" className="seller-status-link">
+              Go to seller login →
+            </Link>
           </div>
         </div>
       </div>

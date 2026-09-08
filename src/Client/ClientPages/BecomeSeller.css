@@ -94,6 +94,18 @@
 .bank-verify-pending { color: #f0ad4e; }
 .bank-verify-rejected { color: #e53e3e; }
 
+.seller-status-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #4CAF50;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seller-status-link:hover {
+  text-decoration: underline;
+}
+
 /* ---- Form ---- */
 .become-seller-form {
   background: #fff;

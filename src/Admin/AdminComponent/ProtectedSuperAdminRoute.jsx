@@ -1,11 +1,11 @@
 import { Navigate } from "react-router-dom";
-import { useSellerAuth } from "../../context/SellerAuthContext";
+import { useAdminAuth } from "../../context/AdminAuthContext";
 
-// Use this INSIDE the already admin-gated /seller routes (ProtectedSellerRoute
+// Use this INSIDE the already admin-gated /admin routes (ProtectedAdminRoute
 // already confirmed the user is at least an admin) to further restrict a
 // page to superadmin only — e.g. the Super Admin dashboard.
 const ProtectedSuperAdminRoute = ({ children }) => {
-  const { seller, loading } = useSellerAuth();
+  const { admin, loading } = useAdminAuth();
 
   if (loading) {
     return (
@@ -22,8 +22,8 @@ const ProtectedSuperAdminRoute = ({ children }) => {
     );
   }
 
-  if (seller?.role !== "superadmin") {
-    return <Navigate to="/seller/dashboard" replace />;
+  if (admin?.role !== "superadmin") {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return children;

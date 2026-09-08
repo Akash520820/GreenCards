@@ -108,41 +108,41 @@ const ManageInventory = () => {
 
   if (loading) {
     return (
-      <div className="seller-loading-container">
-        <div className="seller-spinner"></div>
+      <div className="admin-loading-container">
+        <div className="admin-spinner"></div>
         <p>Loading products...</p>
       </div>
     );
   }
 
   return (
-    <div className="seller-inventory-page">
+    <div className="admin-inventory-page">
       <Toaster position="top-center" />
       
-      <div className="seller-inventory-header">
+      <div className="admin-inventory-header">
         <div>
-          <h1 className="seller-inventory-title">
+          <h1 className="admin-inventory-title">
             All Products
-            <span className="seller-stats-badge">{filteredProducts.length} Items</span>
+            <span className="admin-stats-badge">{filteredProducts.length} Items</span>
             {outOfStockProducts.length > 0 && (
-              <span className="seller-out-of-stock-badge">
+              <span className="admin-out-of-stock-badge">
                 {outOfStockProducts.length} Out of Stock
               </span>
             )}
             {lowStockProducts.length > 0 && (
-              <span className="seller-low-stock-badge">
+              <span className="admin-low-stock-badge">
                 {lowStockProducts.length} Low Stock
               </span>
             )}
           </h1>
-          <p className="seller-inventory-subtitle">
+          <p className="admin-inventory-subtitle">
             Manage your product inventory, stock status, and quantities
           </p>
         </div>
 
         {outOfStockProducts.length > 0 && (
           <button 
-            className="seller-bulk-update-btn"
+            className="admin-bulk-update-btn"
             onClick={handleBulkUpdateStock}
           >
             <FiPackage />
@@ -152,22 +152,22 @@ const ManageInventory = () => {
       </div>
 
       {/* Filters */}
-      <div className="seller-inventory-filters">
-        <div className="seller-search-wrapper">
-          <FiSearch className="seller-search-icon" />
+      <div className="admin-inventory-filters">
+        <div className="admin-search-wrapper">
+          <FiSearch className="admin-search-icon" />
           <input
             type="text"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="seller-search-input"
+            className="admin-search-input"
           />
         </div>
 
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="seller-category-select"
+          className="admin-category-select"
         >
           {categories.map((cat, index) => (
             <option key={index} value={cat}>{cat}</option>
@@ -177,7 +177,7 @@ const ManageInventory = () => {
         <select
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
-          className="seller-category-select"
+          className="admin-category-select"
         >
           <option value="All">All Stock Status</option>
           <option value="In Stock">In Stock Only</option>
@@ -186,50 +186,50 @@ const ManageInventory = () => {
       </div>
 
       {/* Desktop Table View */}
-      <div className="seller-inventory-table-container seller-desktop-view">
-        <table className="seller-inventory-table">
+      <div className="admin-inventory-table-container admin-desktop-view">
+        <table className="admin-inventory-table">
           <thead>
             <tr>
-              <th className="seller-table-header">Product</th>
-              <th className="seller-table-header">Category</th>
-              <th className="seller-table-header">Price</th>
-              <th className="seller-table-header">Quantity</th>
-              <th className="seller-table-header">Status</th>
-              <th className="seller-table-header">Available</th>
+              <th className="admin-table-header">Product</th>
+              <th className="admin-table-header">Category</th>
+              <th className="admin-table-header">Price</th>
+              <th className="admin-table-header">Quantity</th>
+              <th className="admin-table-header">Status</th>
+              <th className="admin-table-header">Available</th>
             </tr>
           </thead>
           <tbody>
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
-                <tr key={product._id} className="seller-table-row">
-                  <td className="seller-table-cell seller-product-cell">
-                    <div className="seller-product-info">
+                <tr key={product._id} className="admin-table-row">
+                  <td className="admin-table-cell admin-product-cell">
+                    <div className="admin-product-info">
                       <img 
                         src={product.image[0] || product.image} 
                         alt={product.name}
-                        className="seller-product-image"
+                        className="admin-product-image"
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/70?text=No+Image';
                         }}
                       />
-                      <span className="seller-product-name">{product.name}</span>
+                      <span className="admin-product-name">{product.name}</span>
                     </div>
                   </td>
-                  <td className="seller-table-cell seller-category-cell">
+                  <td className="admin-table-cell admin-category-cell">
                     {product.category}
                   </td>
-                  <td className="seller-table-cell seller-price-cell">
+                  <td className="admin-table-cell admin-price-cell">
                     ₹{product.offerPrice || product.price}
                   </td>
-                  <td className="seller-table-cell">
-                    <div className="seller-quantity-controls">
+                  <td className="admin-table-cell">
+                    <div className="admin-quantity-controls">
                       {editingQuantity === product._id ? (
-                        <div className="seller-quantity-edit">
+                        <div className="admin-quantity-edit">
                           <input
                             type="number"
                             value={tempQuantity}
                             onChange={(e) => setTempQuantity(e.target.value)}
-                            className="seller-quantity-input"
+                            className="admin-quantity-input"
                             min="0"
                             autoFocus
                             onKeyPress={(e) => {
@@ -242,14 +242,14 @@ const ManageInventory = () => {
                           />
                           <button
                             onClick={() => saveQuantity(product._id, product.name)}
-                            className="seller-quantity-btn save"
+                            className="admin-quantity-btn save"
                             title="Save"
                           >
                             <FiCheck />
                           </button>
                           <button
                             onClick={cancelEdit}
-                            className="seller-quantity-btn cancel"
+                            className="admin-quantity-btn cancel"
                             title="Cancel"
                           >
                             <FiX />
@@ -259,13 +259,13 @@ const ManageInventory = () => {
                         <>
                           <button
                             onClick={() => handleQuantityChange(product._id, -1)}
-                            className="seller-quantity-btn minus"
+                            className="admin-quantity-btn minus"
                             disabled={(product.stock || 0) <= 0}
                           >
                             <FiMinus />
                           </button>
                           <span 
-                            className={`seller-quantity-value ${
+                            className={`admin-quantity-value ${
                               (product.stock || 0) === 0 ? 'zero' : 
                               (product.stock || 0) <= 10 ? 'low' : ''
                             }`}
@@ -273,11 +273,11 @@ const ManageInventory = () => {
                             title="Click to edit"
                           >
                             {product.stock || 0}
-                            <FiEdit2 className="seller-edit-icon" />
+                            <FiEdit2 className="admin-edit-icon" />
                           </span>
                           <button
                             onClick={() => handleQuantityChange(product._id, 1)}
-                            className="seller-quantity-btn plus"
+                            className="admin-quantity-btn plus"
                           >
                             <FiPlus />
                           </button>
@@ -285,8 +285,8 @@ const ManageInventory = () => {
                       )}
                     </div>
                   </td>
-                  <td className="seller-table-cell">
-                    <span className={`seller-stock-status-badge ${
+                  <td className="admin-table-cell">
+                    <span className={`admin-stock-status-badge ${
                       (product.stock || 0) === 0 ? 'out-of-stock' :
                       (product.stock || 0) <= 10 ? 'low-stock' :
                       'in-stock'
@@ -296,22 +296,22 @@ const ManageInventory = () => {
                        'Available'}
                     </span>
                   </td>
-                  <td className="seller-table-cell">
-                    <label className="seller-toggle-switch">
+                  <td className="admin-table-cell">
+                    <label className="admin-toggle-switch">
                       <input
                         type="checkbox"
                         checked={product.inStock}
                         onChange={() => handleStockToggle(product._id, product.name, product.inStock)}
                       />
-                      <span className="seller-toggle-slider"></span>
+                      <span className="admin-toggle-slider"></span>
                     </label>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="seller-no-products-cell">
-                  <div className="seller-no-products-message">
+                <td colSpan="6" className="admin-no-products-cell">
+                  <div className="admin-no-products-message">
                     <FiInbox size={48} />
                     <p>No products found</p>
                   </div>
@@ -323,37 +323,37 @@ const ManageInventory = () => {
       </div>
 
       {/* Mobile Card View */}
-      <div className="seller-mobile-view">
+      <div className="admin-mobile-view">
         {filteredProducts.length > 0 ? (
-          <div className="seller-product-cards">
+          <div className="admin-product-cards">
             {filteredProducts.map((product) => (
-              <div key={product._id} className="seller-product-card">
-                <div className="seller-card-left">
+              <div key={product._id} className="admin-product-card">
+                <div className="admin-card-left">
                   <img 
                     src={product.image[0] || product.image} 
                     alt={product.name}
-                    className="seller-card-image"
+                    className="admin-card-image"
                     onError={(e) => {
                       e.target.src = 'https://via.placeholder.com/70?text=No+Image';
                     }}
                   />
                 </div>
-                <div className="seller-card-content">
-                  <h3 className="seller-card-title">{product.name}</h3>
-                  <span className="seller-card-category">{product.category}</span>
+                <div className="admin-card-content">
+                  <h3 className="admin-card-title">{product.name}</h3>
+                  <span className="admin-card-category">{product.category}</span>
                   
                   {/* Mobile Quantity Controls */}
-                  <div className="seller-card-quantity-section">
-                    <span className="seller-quantity-label">Quantity:</span>
-                    <div className="seller-quantity-controls mobile">
+                  <div className="admin-card-quantity-section">
+                    <span className="admin-quantity-label">Quantity:</span>
+                    <div className="admin-quantity-controls mobile">
                       <button
                         onClick={() => handleQuantityChange(product._id, -1)}
-                        className="seller-quantity-btn minus"
+                        className="admin-quantity-btn minus"
                         disabled={(product.stock || 0) <= 0}
                       >
                         <FiMinus />
                       </button>
-                      <span className={`seller-quantity-value ${
+                      <span className={`admin-quantity-value ${
                         (product.stock || 0) === 0 ? 'zero' : 
                         (product.stock || 0) <= 10 ? 'low' : ''
                       }`}>
@@ -361,19 +361,19 @@ const ManageInventory = () => {
                       </span>
                       <button
                         onClick={() => handleQuantityChange(product._id, 1)}
-                        className="seller-quantity-btn plus"
+                        className="admin-quantity-btn plus"
                       >
                         <FiPlus />
                       </button>
                     </div>
                   </div>
 
-                  <div className="seller-card-footer">
-                    <span className="seller-card-price">
+                  <div className="admin-card-footer">
+                    <span className="admin-card-price">
                       ₹{product.offerPrice || product.price}
                     </span>
-                    <div className="seller-card-stock">
-                      <span className={`seller-stock-label ${
+                    <div className="admin-card-stock">
+                      <span className={`admin-stock-label ${
                         (product.stock || 0) === 0 ? 'out-stock' :
                         (product.stock || 0) <= 10 ? 'low-stock' :
                         'in-stock'
@@ -382,13 +382,13 @@ const ManageInventory = () => {
                          (product.stock || 0) <= 10 ? 'Low Stock' :
                          'In Stock'}
                       </span>
-                      <label className="seller-toggle-switch seller-toggle-small">
+                      <label className="admin-toggle-switch admin-toggle-small">
                         <input
                           type="checkbox"
                           checked={product.inStock}
                           onChange={() => handleStockToggle(product._id, product.name, product.inStock)}
                         />
-                        <span className="seller-toggle-slider"></span>
+                        <span className="admin-toggle-slider"></span>
                       </label>
                     </div>
                   </div>
@@ -397,7 +397,7 @@ const ManageInventory = () => {
             ))}
           </div>
         ) : (
-          <div className="seller-no-products-mobile">
+          <div className="admin-no-products-mobile">
             <FiInbox size={48} />
             <p>No products found</p>
           </div>

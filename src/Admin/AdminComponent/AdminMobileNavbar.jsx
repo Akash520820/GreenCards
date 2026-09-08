@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useOrders } from '../../context/OrderContext';
 import { useProducts } from '../../context/ProductContext';
-import { useSellerAuth } from '../../context/SellerAuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { 
   MdDashboard, 
   MdInventory, 
@@ -12,17 +12,17 @@ import {
   MdLogout,
   MdAdminPanelSettings
 } from 'react-icons/md';
-import './SellerMobileNavbar.css';
+import './AdminMobileNavbar.css';
 
-const SellerMobileNavbar = () => {
+const AdminMobileNavbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { getOrderStats } = useOrders();
   const { products } = useProducts();
-  const { seller, sellerLogout } = useSellerAuth();
+  const { admin, adminLogout } = useAdminAuth();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
-  const isSuperAdmin = seller?.role === 'superadmin';
-  const displayName = seller?.fullName || seller?.userName || 'Admin';
+  const isSuperAdmin = admin?.role === 'superadmin';
+  const displayName = admin?.fullName || admin?.userName || 'Admin';
   
   const orderStats = getOrderStats();
   const pendingOrdersCount = orderStats.pendingOrders;
@@ -48,8 +48,8 @@ const SellerMobileNavbar = () => {
 
   const handleLogout = () => {
     setShowAccountMenu(false);
-    sellerLogout();
-    navigate('/seller/auth');
+    adminLogout();
+    navigate('/admin/auth');
   };
 
   const toggleAccountMenu = () => {
@@ -62,38 +62,38 @@ const SellerMobileNavbar = () => {
       {showAccountMenu && (
         <>
           <div 
-            className="seller-mobile-overlay" 
+            className="admin-mobile-overlay" 
             onClick={() => setShowAccountMenu(false)}
           />
-          <div className="seller-mobile-account-menu">
-            <div className="seller-account-header">
-              <div className="seller-account-avatar">
+          <div className="admin-mobile-account-menu">
+            <div className="admin-account-header">
+              <div className="admin-account-avatar">
                 {displayName.charAt(0).toUpperCase()}
               </div>
-              <div className="seller-account-info">
-                <div className="seller-account-name">{displayName}</div>
-                <div className="seller-account-email">{seller?.email}</div>
+              <div className="admin-account-info">
+                <div className="admin-account-name">{displayName}</div>
+                <div className="admin-account-email">{admin?.email}</div>
               </div>
             </div>
             
-            <div className="seller-account-divider"></div>
+            <div className="admin-account-divider"></div>
             
             {isSuperAdmin && (
               <Link
-                to="/seller/superadmin"
-                className="seller-account-menu-item"
+                to="/admin/superadmin"
+                className="admin-account-menu-item"
                 onClick={() => setShowAccountMenu(false)}
               >
-                <MdAdminPanelSettings className="seller-account-menu-icon" />
+                <MdAdminPanelSettings className="admin-account-menu-icon" />
                 <span>Super Admin</span>
               </Link>
             )}
 
             <button 
-              className="seller-account-menu-item"
+              className="admin-account-menu-item"
               onClick={handleLogout}
             >
-              <MdLogout className="seller-account-menu-icon" />
+              <MdLogout className="admin-account-menu-icon" />
               <span>Logout</span>
             </button>
           </div>
@@ -101,67 +101,67 @@ const SellerMobileNavbar = () => {
       )}
 
       {/* Bottom Navigation */}
-      <nav className="seller-mobile-navbar">
+      <nav className="admin-mobile-navbar">
         <Link 
-          to="/seller/dashboard" 
-          className={`seller-mobile-nav-item ${isActive('/seller/dashboard') ? 'active' : ''}`}
+          to="/admin/dashboard" 
+          className={`admin-mobile-nav-item ${isActive('/admin/dashboard') ? 'active' : ''}`}
         >
-          <div className="seller-mobile-nav-icon">
+          <div className="admin-mobile-nav-icon">
             <MdDashboard />
           </div>
-          <span className="seller-mobile-nav-label">Dashboard</span>
+          <span className="admin-mobile-nav-label">Dashboard</span>
         </Link>
 
         <Link 
-          to="/seller/inventory" 
-          className={`seller-mobile-nav-item ${isActive('/seller/inventory') ? 'active' : ''}`}
+          to="/admin/inventory" 
+          className={`admin-mobile-nav-item ${isActive('/admin/inventory') ? 'active' : ''}`}
         >
-          <div className="seller-mobile-nav-icon">
+          <div className="admin-mobile-nav-icon">
             <MdInventory />
             {products.length > 0 && (
-              <span className="seller-mobile-nav-badge">{products.length}</span>
+              <span className="admin-mobile-nav-badge">{products.length}</span>
             )}
           </div>
-          <span className="seller-mobile-nav-label">Products</span>
+          <span className="admin-mobile-nav-label">Products</span>
         </Link>
 
         <Link 
-          to="/seller/add-product" 
-          className={`seller-mobile-nav-item ${isActive('/seller/add-product') ? 'active' : ''}`}
+          to="/admin/add-product" 
+          className={`admin-mobile-nav-item ${isActive('/admin/add-product') ? 'active' : ''}`}
         >
-          <div className="seller-mobile-nav-icon">
+          <div className="admin-mobile-nav-icon">
             <MdAddCircle />
           </div>
-          <span className="seller-mobile-nav-label">Add Product</span>
+          <span className="admin-mobile-nav-label">Add Product</span>
         </Link>
 
         <Link 
-          to="/seller/orders" 
-          className={`seller-mobile-nav-item ${isActive('/seller/orders') ? 'active' : ''}`}
+          to="/admin/orders" 
+          className={`admin-mobile-nav-item ${isActive('/admin/orders') ? 'active' : ''}`}
         >
-          <div className="seller-mobile-nav-icon">
+          <div className="admin-mobile-nav-icon">
             <MdShoppingCart />
             {pendingOrdersCount > 0 && (
-              <span className="seller-mobile-nav-badge seller-mobile-nav-badge-warning">
+              <span className="admin-mobile-nav-badge admin-mobile-nav-badge-warning">
                 {pendingOrdersCount}
               </span>
             )}
           </div>
-          <span className="seller-mobile-nav-label">Orders</span>
+          <span className="admin-mobile-nav-label">Orders</span>
         </Link>
 
         <button 
-          className="seller-mobile-nav-item"
+          className="admin-mobile-nav-item"
           onClick={toggleAccountMenu}
         >
-          <div className="seller-mobile-nav-icon">
+          <div className="admin-mobile-nav-icon">
             <MdAccountCircle />
           </div>
-          <span className="seller-mobile-nav-label">Account</span>
+          <span className="admin-mobile-nav-label">Account</span>
         </button>
       </nav>
     </>
   );
 };
 
-export default SellerMobileNavbar;
+export default AdminMobileNavbar;

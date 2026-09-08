@@ -16,13 +16,13 @@ import {
   FiClock,
 } from 'react-icons/fi';
 import * as adminApi from '../../api/admin.api';
-import { useSellerAuth } from '../../context/SellerAuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import './SuperAdminDashboard.css';
 
 const PAGE_SIZE = 10;
 
 const SuperAdminDashboard = () => {
-  const { seller } = useSellerAuth();
+  const { admin } = useAdminAuth();
 
   const [dashboard, setDashboard] = useState(null);
   const [dashboardLoading, setDashboardLoading] = useState(true);
@@ -128,7 +128,7 @@ const SuperAdminDashboard = () => {
         <div>
           <h1 className="superadmin-title">Super Admin</h1>
           <p className="superadmin-subtitle">
-            Full platform control — {seller?.fullName || seller?.userName}, you decide who gets admin power.
+            Full platform control — {admin?.fullName || admin?.userName}, you decide who gets admin power.
           </p>
         </div>
       </div>

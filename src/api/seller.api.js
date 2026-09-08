@@ -15,3 +15,9 @@ export const applyForSeller = (formData) =>
 // Returns the caller's own SellerProfile (status: pending | approved | rejected | suspended).
 // Throws a 404-backed error if the user has never applied.
 export const getMySellerProfile = () => unwrap(api.get("/seller/me"));
+
+// ---- Approved sellers only (role === "seller") ----
+
+// { totalProducts, totalRevenue, totalUnitsSold } — scoped to this seller's own products/orders
+export const getSellerAnalytics = () => unwrap(api.get("/seller/analytics"));
+

@@ -1,10 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useSellerAuth } from "../../context/SellerAuthContext";
 
+// Gates the /seller/* panel to genuinely approved sellers (role === "seller").
+// Staff accounts (admin/superadmin) have their own, separate panel at
+// /admin/* — see Admin/AdminComponent/ProtectedAdminRoute.jsx.
 const ProtectedSellerRoute = ({ children }) => {
   const { isSellerAuthenticated, seller, loading } = useSellerAuth();
 
-  // Show loading state while checking authentication
   if (loading) {
     return (
       <div style={{
@@ -20,20 +22,10 @@ const ProtectedSellerRoute = ({ children }) => {
     );
   }
 
-  // Check if seller is authenticated
-  if (!isSellerAuthenticated) {
-    console.log("Seller not authenticated, redirecting to seller auth");
+  if (!isSellerAuthenticated || seller?.role !== "seller") {
     return <Navigate to="/seller/auth" replace />;
   }
 
-  // Check if user has admin-level access (the real backend has no separate
-  // "seller" role — the seller panel is really an admin/superadmin panel)
-  if (seller?.role !== "admin" && seller?.role !== "superadmin") {
-    console.log("User does not have admin access, redirecting to seller auth");
-    return <Navigate to="/seller/auth" replace />;
-  }
-
-  // Seller is authenticated
   return children;
 };
 

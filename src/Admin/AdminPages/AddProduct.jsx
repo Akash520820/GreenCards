@@ -102,7 +102,7 @@ const AddProduct = () => {
       setImagePreviews([null, null, null, null]);
 
       setTimeout(() => {
-        navigate('/seller/inventory');
+        navigate('/admin/inventory');
       }, 1000);
     } catch (err) {
       console.error('Error adding product:', err);

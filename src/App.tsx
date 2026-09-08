@@ -1,10 +1,11 @@
-// App.tsx - Fixed Sales Analytics Route
+// App.tsx
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Authentication Contexts
 import { ClientAuthProvider } from './context/ClientAuthContext';
 import { SellerAuthProvider } from './context/SellerAuthContext';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CartProvider } from './context/CartContext';
 import { ProductProvider } from './context/ProductContext';
 import { OrderProvider } from './context/OrderContext';
@@ -20,21 +21,23 @@ import Cart from './Client/ClientPages/Cart';
 import Contact from './Client/ClientPages/Contact';
 import BecomeSeller from './Client/ClientPages/BecomeSeller';
 
-// Seller Layout & Pages
+// Seller Layout & Pages (role === "seller" only)
 import SellerAppLayout from './Seller/SellerComponent/Layout/SellerAppLayout';
 import SellerDashboard from './Seller/SellerPages/SellerDashboard';
-import OrderSection from './Seller/SellerPages/OrderSection';
-import AddProduct from './Seller/SellerPages/AddProduct';
-import ManageInventory from './Seller/SellerPages/ManageInventory';
-import SalesAnalytics from './Seller/SellerPages/SalesAnalytics';
-import SuperAdminDashboard from './Seller/SellerPages/SuperAdminDashboard';
-
-// Seller Auth Page
 import SellerAuthPage from './Seller/SellerPages/SellerAuthPage';
-
-// Protected Route Components for Seller
 import ProtectedSellerRoute from './Seller/SellerComponent/ProtectedSellerRoute';
-import ProtectedSuperAdminRoute from './Seller/SellerComponent/ProtectedSuperAdminRoute';
+
+// Admin Layout & Pages (role === "admin" or "superadmin" only)
+import AdminAppLayout from './Admin/AdminComponent/Layout/AdminAppLayout';
+import AdminDashboard from './Admin/AdminPages/AdminDashboard';
+import OrderSection from './Admin/AdminPages/OrderSection';
+import AddProduct from './Admin/AdminPages/AddProduct';
+import ManageInventory from './Admin/AdminPages/ManageInventory';
+import SalesAnalytics from './Admin/AdminPages/SalesAnalytics';
+import SuperAdminDashboard from './Admin/AdminPages/SuperAdminDashboard';
+import AdminAuthPage from './Admin/AdminPages/AdminAuthPage';
+import ProtectedAdminRoute from './Admin/AdminComponent/ProtectedAdminRoute';
+import ProtectedSuperAdminRoute from './Admin/AdminComponent/ProtectedSuperAdminRoute';
 
 // Get base URL for GitHub Pages
 const basename = import.meta.env.BASE_URL;
@@ -45,48 +48,25 @@ const router = createBrowserRouter([
     path: "/",
     element: <ClientAppLayout />,
     children: [
-      {
-        path: "/",
-        element: <Home />,
-      },
-      {
-        path: "/AllProduct",
-        element: <AllProduct />,
-      },
-      {
-        path: "/flash-sale",
-        element: <FlashSale />,
-      },
-      {
-        path: "/product/:productId",
-        element: <ProductDetails />,
-      },
-      {
-        path: "/cart",
-        element: <Cart />,
-      },
-      {
-        path: "/my-orders",
-        element: <MyOrders />,
-      },
-      {
-        path: "/contact",
-        element: <Contact />,
-      },
-      {
-        path: "/become-seller",
-        element: <BecomeSeller />,
-      },
+      { path: "/", element: <Home /> },
+      { path: "/AllProduct", element: <AllProduct /> },
+      { path: "/flash-sale", element: <FlashSale /> },
+      { path: "/product/:productId", element: <ProductDetails /> },
+      { path: "/cart", element: <Cart /> },
+      { path: "/my-orders", element: <MyOrders /> },
+      { path: "/contact", element: <Contact /> },
+      { path: "/become-seller", element: <BecomeSeller /> },
     ],
   },
 
-  // SELLER AUTH ROUTE (Public - Login/Signup)
+  // SELLER AUTH ROUTE (Public - Login only; role "seller" is granted by an
+  // admin approving a /seller/apply application, never by self-signup)
   {
     path: "/seller/auth",
     element: <SellerAuthPage />,
   },
 
-  // SELLER ROUTES (Protected)
+  // SELLER ROUTES (Protected — role "seller" only)
   {
     path: "/seller",
     element: (
@@ -95,32 +75,35 @@ const router = createBrowserRouter([
       </ProtectedSellerRoute>
     ),
     children: [
+      { path: "/seller", element: <Navigate to="/seller/dashboard" replace /> },
+      { path: "/seller/dashboard", element: <SellerDashboard /> },
+    ],
+  },
+
+  // ADMIN AUTH ROUTE (Public - Login only; admin access is granted by a
+  // superadmin, never by self-signup)
+  {
+    path: "/admin/auth",
+    element: <AdminAuthPage />,
+  },
+
+  // ADMIN ROUTES (Protected — role "admin" or "superadmin")
+  {
+    path: "/admin",
+    element: (
+      <ProtectedAdminRoute>
+        <AdminAppLayout />
+      </ProtectedAdminRoute>
+    ),
+    children: [
+      { path: "/admin", element: <Navigate to="/admin/dashboard" replace /> },
+      { path: "/admin/dashboard", element: <AdminDashboard /> },
+      { path: "/admin/orders", element: <OrderSection /> },
+      { path: "/admin/add-product", element: <AddProduct /> },
+      { path: "/admin/inventory", element: <ManageInventory /> },
+      { path: "/admin/analytics", element: <SalesAnalytics /> },
       {
-        path: "/seller",
-        element: <Navigate to="/seller/dashboard" replace />,
-      },
-      {
-        path: "/seller/dashboard",
-        element: <SellerDashboard />,
-      },
-      {
-        path: "/seller/orders",
-        element: <OrderSection />,
-      },
-      {
-        path: "/seller/add-product",
-        element: <AddProduct />,
-      },
-      {
-        path: "/seller/inventory",
-        element: <ManageInventory />,
-      },
-      {
-        path: "/seller/analytics",
-        element: <SalesAnalytics />,
-      },
-      {
-        path: "/seller/superadmin",
+        path: "/admin/superadmin",
         element: (
           <ProtectedSuperAdminRoute>
             <SuperAdminDashboard />
@@ -137,13 +120,15 @@ function App() {
   return (
     <ClientAuthProvider>
       <SellerAuthProvider>
-        <ProductProvider>
-          <OrderProvider>
-            <CartProvider>
-              <RouterProvider router={router} />
-            </CartProvider>
-          </OrderProvider>
-        </ProductProvider>
+        <AdminAuthProvider>
+          <ProductProvider>
+            <OrderProvider>
+              <CartProvider>
+                <RouterProvider router={router} />
+              </CartProvider>
+            </OrderProvider>
+          </ProductProvider>
+        </AdminAuthProvider>
       </SellerAuthProvider>
     </ClientAuthProvider>
   );

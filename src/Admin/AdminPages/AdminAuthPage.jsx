@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useSellerAuth } from '../../context/SellerAuthContext';
-import SellerAuthHeader from '../SellerComponent/SellerAuthHeader';
-import SellerAuthForm from '../SellerComponent/SellerAuthForm';
-import ErrorMessage from '../SellerComponent/ErrorMessage';
-import './SellerAuthPage.css';
+import { useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../../context/AdminAuthContext';
+import AdminAuthHeader from '../AdminComponent/AdminAuthHeader';
+import AdminAuthForm from '../AdminComponent/AdminAuthForm';
+import ErrorMessage from '../AdminComponent/ErrorMessage';
+import './AdminAuthPage.css';
 
-const SellerAuthPage = () => {
+const AdminAuthPage = () => {
   const navigate = useNavigate();
-  const { sellerLogin } = useSellerAuth();
+  const { adminLogin } = useAdminAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,9 +25,9 @@ const SellerAuthPage = () => {
     setError('');
 
     try {
-      const result = await sellerLogin(formData.email, formData.password);
+      const result = await adminLogin(formData.email, formData.password);
       if (result.success) {
-        navigate('/seller/dashboard');
+        navigate('/admin/dashboard');
       } else {
         setError(result.error || 'Authentication failed');
       }
@@ -39,27 +39,21 @@ const SellerAuthPage = () => {
   };
 
   return (
-    <div className="seller-auth-page">
-      <div className="seller-auth-container">
-        <div className="seller-auth-content">
-          <SellerAuthHeader />
+    <div className="admin-auth-page">
+      <div className="admin-auth-container">
+        <div className="admin-auth-content">
+          <AdminAuthHeader isLogin={true} />
           <ErrorMessage error={error} />
-          <SellerAuthForm
+          <AdminAuthForm
             formData={formData}
             loading={loading}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
-          <p className="auth-form-toggle-text">
-            Not a seller yet?{' '}
-            <Link to="/become-seller" className="auth-form-toggle-link">
-              Apply here
-            </Link>
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default SellerAuthPage;
+export default AdminAuthPage;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useSellerAuth } from '../../context/SellerAuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { 
   FiShoppingBag,
   FiGrid,
@@ -15,21 +15,21 @@ import {
   FiShield
 } from 'react-icons/fi';
 
-import './SellerSidebar.css';
+import './AdminSidebar.css';
 
-const SellerSidebar = () => {
+const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { seller, sellerLogout } = useSellerAuth();
+  const { admin, adminLogout } = useAdminAuth();
   const [showAccountPopup, setShowAccountPopup] = useState(false);
   const popupRef = useRef(null);
-  const isSuperAdmin = seller?.role === 'superadmin';
-  const displayName = seller?.fullName || seller?.userName || 'Admin';
+  const isSuperAdmin = admin?.role === 'superadmin';
+  const displayName = admin?.fullName || admin?.userName || 'Admin';
   const roleLabel = isSuperAdmin ? 'Super Admin' : 'Admin';
 
   const handleLogout = () => {
     setShowAccountPopup(false);
-    sellerLogout();
+    adminLogout();
     navigate('/');
   };
 
@@ -79,7 +79,7 @@ const SellerSidebar = () => {
           {displayName}
         </p>
         <small className="sidebar-header-email">
-          {seller?.email || ''}
+          {admin?.email || ''}
         </small>
         
         {/* Hover hint */}
@@ -109,16 +109,16 @@ const SellerSidebar = () => {
             <div className="sidebar-popup-details">
               <div className="sidebar-popup-detail-item">
                 <FiMail className="sidebar-popup-detail-icon" />
-                <span>{seller?.email || '—'}</span>
+                <span>{admin?.email || '—'}</span>
               </div>
               <div className="sidebar-popup-detail-item">
                 <FiUser className="sidebar-popup-detail-icon" />
-                <span>{seller?.userName || '—'}</span>
+                <span>{admin?.userName || '—'}</span>
               </div>
-              {seller?.phone && (
+              {admin?.phone && (
                 <div className="sidebar-popup-detail-item">
                   <FiPhone className="sidebar-popup-detail-icon" />
-                  <span>{seller.phone}</span>
+                  <span>{admin.phone}</span>
                 </div>
               )}
             </div>
@@ -140,39 +140,39 @@ const SellerSidebar = () => {
       {/* Sidebar Navigation */}
       <nav className="sidebar-nav">
         <Link 
-          to="/seller/dashboard" 
-          className={`sidebar-nav-link ${isActive('/seller/dashboard') ? 'sidebar-nav-link-active' : ''}`}
+          to="/admin/dashboard" 
+          className={`sidebar-nav-link ${isActive('/admin/dashboard') ? 'sidebar-nav-link-active' : ''}`}
         >
           <FiGrid className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Dashboard</span>
         </Link>
         
         <Link 
-          to="/seller/orders" 
-          className={`sidebar-nav-link ${isActive('/seller/orders') ? 'sidebar-nav-link-active' : ''}`}
+          to="/admin/orders" 
+          className={`sidebar-nav-link ${isActive('/admin/orders') ? 'sidebar-nav-link-active' : ''}`}
         >
           <FiPackage className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Orders</span>
         </Link>
         
         <Link 
-          to="/seller/add-product" 
-          className={`sidebar-nav-link ${isActive('/seller/add-product') ? 'sidebar-nav-link-active' : ''}`}
+          to="/admin/add-product" 
+          className={`sidebar-nav-link ${isActive('/admin/add-product') ? 'sidebar-nav-link-active' : ''}`}
         >
           <FiPlusCircle className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Add Product</span>
         </Link>
         
         <Link 
-          to="/seller/inventory" 
-          className={`sidebar-nav-link ${isActive('/seller/inventory') ? 'sidebar-nav-link-active' : ''}`}
+          to="/admin/inventory" 
+          className={`sidebar-nav-link ${isActive('/admin/inventory') ? 'sidebar-nav-link-active' : ''}`}
         >
           <FiClipboard className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Inventory</span>
         </Link>
         <Link 
-          to="/seller/analytics" 
-          className={`sidebar-nav-link ${isActive('/seller/analytics') ? 'sidebar-nav-link-active' : ''}`}
+          to="/admin/analytics" 
+          className={`sidebar-nav-link ${isActive('/admin/analytics') ? 'sidebar-nav-link-active' : ''}`}
         >
           <FiBarChart2 className="sidebar-nav-icon" /> 
           <span className="sidebar-nav-text">Sales Analytics</span>
@@ -180,8 +180,8 @@ const SellerSidebar = () => {
 
         {isSuperAdmin && (
           <Link
-            to="/seller/superadmin"
-            className={`sidebar-nav-link sidebar-nav-link-superadmin ${isActive('/seller/superadmin') ? 'sidebar-nav-link-active' : ''}`}
+            to="/admin/superadmin"
+            className={`sidebar-nav-link sidebar-nav-link-superadmin ${isActive('/admin/superadmin') ? 'sidebar-nav-link-active' : ''}`}
           >
             <FiShield className="sidebar-nav-icon" />
             <span className="sidebar-nav-text">Super Admin</span>
@@ -203,4 +203,4 @@ const SellerSidebar = () => {
   );
 };
 
-export default SellerSidebar;
+export default AdminSidebar;

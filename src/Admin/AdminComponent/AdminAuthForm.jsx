@@ -1,10 +1,14 @@
 import React from 'react';
 import PasswordInput from './PasswordInput';
 
-// Sellers can't self-register here — an account becomes a seller only after
-// applying at /become-seller and being approved by an admin — so this form
-// is login-only.
-const SellerAuthForm = ({ formData, loading, handleChange, handleSubmit }) => {
+// Admin accounts can only be granted by a super admin (there is no
+// self-service signup), so this form is login-only.
+const AdminAuthForm = ({
+  formData,
+  loading,
+  handleChange,
+  handleSubmit,
+}) => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="auth-form-input-group">
@@ -31,11 +35,15 @@ const SellerAuthForm = ({ formData, loading, handleChange, handleSubmit }) => {
         required
       />
 
-      <button type="submit" className="auth-form-submit-btn" disabled={loading}>
+      <button
+        type="submit"
+        className="auth-form-submit-btn"
+        disabled={loading}
+      >
         {loading ? 'Please wait…' : 'Login'}
       </button>
     </form>
   );
 };
 
-export default SellerAuthForm;
+export default AdminAuthForm;

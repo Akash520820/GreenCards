@@ -1,7 +1,7 @@
 /* ========================================
    SELLER MOBILE NAVBAR - BOTTOM FIXED
 ======================================== */
-.seller-mobile-navbar {
+.admin-mobile-navbar {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -19,7 +19,7 @@
 /* ========================================
    MOBILE NAV ITEMS
 ======================================== */
-.seller-mobile-nav-item {
+.admin-mobile-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,24 +36,24 @@
   cursor: pointer;
 }
 
-.seller-mobile-nav-item:hover {
+.admin-mobile-nav-item:hover {
   color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.05);
 }
 
-.seller-mobile-nav-item.active {
+.admin-mobile-nav-item.active {
   color: #ffffff;
   background: rgba(76, 175, 80, 0.15);
 }
 
-.seller-mobile-nav-item.active .seller-mobile-nav-icon {
+.admin-mobile-nav-item.active .admin-mobile-nav-icon {
   color: #4CAF50;
 }
 
 /* ========================================
    NAV ICONS
 ======================================== */
-.seller-mobile-nav-icon {
+.admin-mobile-nav-icon {
   position: relative;
   font-size: 1.5rem;
   display: flex;
@@ -64,7 +64,7 @@
 /* ========================================
    NAV LABELS
 ======================================== */
-.seller-mobile-nav-label {
+.admin-mobile-nav-label {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -73,7 +73,7 @@
 /* ========================================
    BADGES (NOTIFICATION COUNTS)
 ======================================== */
-.seller-mobile-nav-badge {
+.admin-mobile-nav-badge {
   position: absolute;
   top: -8px;
   right: -8px;
@@ -91,7 +91,7 @@
   box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
 }
 
-.seller-mobile-nav-badge-warning {
+.admin-mobile-nav-badge-warning {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   box-shadow: 0 2px 6px rgba(255, 152, 0, 0.4);
 }
@@ -99,7 +99,7 @@
 /* ========================================
    ACCOUNT DROPDOWN MENU
 ======================================== */
-.seller-mobile-overlay {
+.admin-mobile-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -115,7 +115,7 @@
   to { opacity: 1; }
 }
 
-.seller-mobile-account-menu {
+.admin-mobile-account-menu {
   position: fixed;
   bottom: 70px;
   right: 10px;
@@ -139,14 +139,14 @@
 }
 
 /* Account Header */
-.seller-account-header {
+.admin-account-header {
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.seller-account-avatar {
+.admin-account-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -160,12 +160,12 @@
   flex-shrink: 0;
 }
 
-.seller-account-info {
+.admin-account-info {
   flex: 1;
   overflow: hidden;
 }
 
-.seller-account-name {
+.admin-account-name {
   font-size: 1rem;
   font-weight: 600;
   color: white;
@@ -175,7 +175,7 @@
   text-overflow: ellipsis;
 }
 
-.seller-account-email {
+.admin-account-email {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
@@ -184,14 +184,14 @@
 }
 
 /* Divider */
-.seller-account-divider {
+.admin-account-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   margin: 0 10px;
 }
 
 /* Menu Item */
-.seller-account-menu-item {
+.admin-account-menu-item {
   width: 100%;
   padding: 15px 20px;
   display: flex;
@@ -207,16 +207,16 @@
   text-align: left;
 }
 
-.seller-account-menu-item:hover {
+.admin-account-menu-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: white;
 }
 
-.seller-account-menu-item:active {
+.admin-account-menu-item:active {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.seller-account-menu-icon {
+.admin-account-menu-icon {
   font-size: 1.3rem;
   color: #e74c3c;
 }
@@ -225,12 +225,12 @@
    SHOW ON MOBILE ONLY
 ======================================== */
 @media (max-width: 991.98px) {
-  .seller-mobile-navbar {
+  .admin-mobile-navbar {
     display: flex;
   }
 
   /* Add padding to bottom of content to prevent navbar overlap */
-  .seller-layout-content {
+  .admin-layout-content {
     padding-bottom: 90px !important;
   }
 }
@@ -239,19 +239,19 @@
    RESPONSIVE - TABLET
 ======================================== */
 @media (max-width: 768px) {
-  .seller-mobile-navbar {
+  .admin-mobile-navbar {
     height: 65px;
   }
 
-  .seller-mobile-nav-icon {
+  .admin-mobile-nav-icon {
     font-size: 1.4rem;
   }
 
-  .seller-mobile-nav-label {
+  .admin-mobile-nav-label {
     font-size: 0.65rem;
   }
 
-  .seller-mobile-account-menu {
+  .admin-mobile-account-menu {
     bottom: 65px;
     min-width: 260px;
   }
@@ -261,56 +261,56 @@
    RESPONSIVE - SMALL MOBILE
 ======================================== */
 @media (max-width: 480px) {
-  .seller-mobile-navbar {
+  .admin-mobile-navbar {
     height: 60px;
     padding: 0 0.25rem;
   }
 
-  .seller-mobile-nav-item {
+  .admin-mobile-nav-item {
     padding: 0.4rem 0.5rem;
     min-width: 55px;
   }
 
-  .seller-mobile-nav-icon {
+  .admin-mobile-nav-icon {
     font-size: 1.3rem;
   }
 
-  .seller-mobile-nav-label {
+  .admin-mobile-nav-label {
     font-size: 0.6rem;
   }
 
-  .seller-mobile-nav-badge {
+  .admin-mobile-nav-badge {
     font-size: 0.6rem;
     padding: 0.15rem 0.35rem;
     min-width: 16px;
     height: 16px;
   }
 
-  .seller-mobile-account-menu {
+  .admin-mobile-account-menu {
     bottom: 60px;
     right: 5px;
     min-width: 240px;
   }
 
-  .seller-account-header {
+  .admin-account-header {
     padding: 15px;
   }
 
-  .seller-account-avatar {
+  .admin-account-avatar {
     width: 45px;
     height: 45px;
     font-size: 1.3rem;
   }
 
-  .seller-account-name {
+  .admin-account-name {
     font-size: 0.95rem;
   }
 
-  .seller-account-email {
+  .admin-account-email {
     font-size: 0.8rem;
   }
 
-  .seller-account-menu-item {
+  .admin-account-menu-item {
     padding: 12px 15px;
     font-size: 0.9rem;
   }
@@ -319,17 +319,17 @@
 /* ========================================
    ACCESSIBILITY
 ======================================== */
-.seller-mobile-nav-item:focus,
-.seller-account-menu-item:focus {
+.admin-mobile-nav-item:focus,
+.admin-account-menu-item:focus {
   outline: 2px solid #4CAF50;
   outline-offset: 2px;
 }
 
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .seller-mobile-nav-item,
-  .seller-mobile-overlay,
-  .seller-mobile-account-menu {
+  .admin-mobile-nav-item,
+  .admin-mobile-overlay,
+  .admin-mobile-account-menu {
     animation: none;
     transition: none;
   }
@@ -339,12 +339,12 @@
    SAFE AREA INSETS (for iOS notch)
 ======================================== */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .seller-mobile-navbar {
+  .admin-mobile-navbar {
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
     height: calc(70px + env(safe-area-inset-bottom));
   }
 
-  .seller-mobile-account-menu {
+  .admin-mobile-account-menu {
     bottom: calc(70px + env(safe-area-inset-bottom));
   }
 }

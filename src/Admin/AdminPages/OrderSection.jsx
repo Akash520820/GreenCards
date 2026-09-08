@@ -49,21 +49,21 @@ const OrderSection = () => {
 
   if (loading) {
     return (
-      <div className="seller-loading-container">
-        <div className="seller-spinner"></div>
+      <div className="admin-loading-container">
+        <div className="admin-spinner"></div>
         <p>Loading orders...</p>
       </div>
     );
   }
 
   return (
-    <div className="seller-order-section-page">
+    <div className="admin-order-section-page">
       <Toaster position="top-center" />
 
-      <div className="seller-orders-header">
-        <h1 className="seller-orders-title">Orders</h1>
+      <div className="admin-orders-header">
+        <h1 className="admin-orders-title">Orders</h1>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p className="seller-orders-subtitle">{sortedOrders.length} orders</p>
+          <p className="admin-orders-subtitle">{sortedOrders.length} orders</p>
 
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500' }}>Sort by:</span>
@@ -91,11 +91,11 @@ const OrderSection = () => {
         </div>
       </div>
 
-      <div className="seller-status-filter-tabs">
+      <div className="admin-status-filter-tabs">
         {STATUS_TABS.map((status) => (
           <button
             key={status}
-            className={`seller-status-tab ${statusFilter === status ? 'active' : ''}`}
+            className={`admin-status-tab ${statusFilter === status ? 'active' : ''}`}
             onClick={() => setStatusFilter(status)}
           >
             {status === 'All' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -103,100 +103,100 @@ const OrderSection = () => {
         ))}
       </div>
 
-      <div className="seller-orders-list">
+      <div className="admin-orders-list">
         {sortedOrders.length > 0 ? (
           sortedOrders.map((order) => (
-            <div key={order._id} className="seller-order-card">
-              <div className="seller-order-card-header">
-                <div className="seller-order-id-section">
-                  <h3 className="seller-order-id">Order #{order._id.slice(-8).toUpperCase()}</h3>
-                  <span className={`seller-order-status-badge ${order.orderStatus}`}>
+            <div key={order._id} className="admin-order-card">
+              <div className="admin-order-card-header">
+                <div className="admin-order-id-section">
+                  <h3 className="admin-order-id">Order #{order._id.slice(-8).toUpperCase()}</h3>
+                  <span className={`admin-order-status-badge ${order.orderStatus}`}>
                     {order.orderStatus}
                   </span>
                 </div>
-                <p className="seller-order-date">
+                <p className="admin-order-date">
                   Placed on: {formatDateTime(order.createdAt)}
                 </p>
               </div>
 
-              <div className="seller-order-card-body">
-                <div className="seller-order-products-list">
+              <div className="admin-order-card-body">
+                <div className="admin-order-products-list">
                   {order.items.slice(0, 2).map((item, index) => (
-                    <div key={index} className="seller-product-item">
+                    <div key={index} className="admin-product-item">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="seller-product-image"
+                        className="admin-product-image"
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/60?text=No+Image';
                         }}
                       />
-                      <div className="seller-product-info">
+                      <div className="admin-product-info">
                         <h4>{item.name}</h4>
-                        <p className="seller-product-quantity">
+                        <p className="admin-product-quantity">
                           Qty: <span className="quantity-value">{item.quantity}</span>
                         </p>
                       </div>
                     </div>
                   ))}
                   {order.items.length > 2 && (
-                    <div className="seller-product-item">
-                      <div className="seller-multiple-products-icon">
+                    <div className="admin-product-item">
+                      <div className="admin-multiple-products-icon">
                         <i className="bi bi-plus"></i>
                       </div>
-                      <div className="seller-product-info">
+                      <div className="admin-product-info">
                         <h4>+{order.items.length - 2} more items</h4>
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="seller-order-details-grid">
-                  <div className="seller-detail-item">
-                    <span className="seller-detail-label">Total Amount</span>
-                    <span className="seller-detail-value total-amount">
+                <div className="admin-order-details-grid">
+                  <div className="admin-detail-item">
+                    <span className="admin-detail-label">Total Amount</span>
+                    <span className="admin-detail-value total-amount">
                       ₹{order.totalPrice.toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="seller-detail-item">
-                    <span className="seller-detail-label">Payment Method</span>
-                    <span className="seller-detail-value">
+                  <div className="admin-detail-item">
+                    <span className="admin-detail-label">Payment Method</span>
+                    <span className="admin-detail-value">
                       {order.paymentMethod.toUpperCase()}
                     </span>
                   </div>
 
-                  <div className="seller-detail-item">
-                    <span className="seller-detail-label">Items</span>
-                    <span className="seller-detail-value">{order.items.length}</span>
+                  <div className="admin-detail-item">
+                    <span className="admin-detail-label">Items</span>
+                    <span className="admin-detail-value">{order.items.length}</span>
                   </div>
 
-                  <div className="seller-detail-item">
-                    <span className="seller-detail-label">Payment Status</span>
-                    <span className="seller-detail-value">
+                  <div className="admin-detail-item">
+                    <span className="admin-detail-label">Payment Status</span>
+                    <span className="admin-detail-value">
                       {order.paymentStatus}
                     </span>
                   </div>
                 </div>
 
-                <div className="seller-customer-info-section">
-                  <h4 className="seller-customer-name">{order.shippingAddress?.fullName}</h4>
-                  <p className="seller-customer-detail">
+                <div className="admin-customer-info-section">
+                  <h4 className="admin-customer-name">{order.shippingAddress?.fullName}</h4>
+                  <p className="admin-customer-detail">
                     <i className="bi bi-geo-alt-fill"></i>
                     {order.shippingAddress?.addressLine1}, {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
                   </p>
-                  <p className="seller-customer-detail">
+                  <p className="admin-customer-detail">
                     <i className="bi bi-telephone-fill"></i>
                     {order.shippingAddress?.phone}
                   </p>
                 </div>
 
-                <div className="seller-status-update-section">
-                  <span className="seller-status-update-label">Update Order Status:</span>
+                <div className="admin-status-update-section">
+                  <span className="admin-status-update-label">Update Order Status:</span>
                   <select
                     value={order.orderStatus}
                     onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                    className="seller-status-select"
+                    className="admin-status-select"
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -205,10 +205,10 @@ const OrderSection = () => {
                 </div>
               </div>
 
-              <div className="seller-order-card-actions">
+              <div className="admin-order-card-actions">
                 {order.orderStatus !== 'cancelled' && order.orderStatus !== 'delivered' && (
                   <button
-                    className="seller-action-btn cancel-order"
+                    className="admin-action-btn cancel-order"
                     onClick={() => handleStatusChange(order._id, 'cancelled')}
                   >
                     Cancel Order
@@ -218,7 +218,7 @@ const OrderSection = () => {
             </div>
           ))
         ) : (
-          <div className="seller-no-orders">
+          <div className="admin-no-orders">
             <i className="bi bi-inbox"></i>
             <p>No orders found</p>
           </div>

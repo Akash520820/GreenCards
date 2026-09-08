@@ -4,7 +4,7 @@ const ErrorMessage = ({ error }) => {
   if (!error) return null;
 
   return (
-    <div className="seller-auth-error" role="alert">
+    <div className="admin-auth-error" role="alert">
       {error}
     </div>
   );

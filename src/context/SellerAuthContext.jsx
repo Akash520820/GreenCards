@@ -3,15 +3,10 @@ import * as authApi from '../api/auth.api';
 
 const SellerAuthContext = createContext();
 
-// NOTE ON THIS FILE:
-// The real backend has no separate "seller" entity — only User.role of
-// "user" | "admin" | "superadmin". The Seller section of this app (dashboard,
-// inventory, orders, analytics) is really an admin panel, so logging in here
-// just calls the normal /users/login endpoint and requires the account's
-// role to be "admin" or "superadmin". New admin accounts can't be
-// self-registered — a superadmin has to promote an existing user via
-// /api/v1/superadmin/users/:userId/role — so sellerSignup is intentionally
-// left disabled below, same as it was in the original hardcoded version.
+// Login for the "seller" role only. A user becomes a seller by applying
+// through /become-seller and being approved by an admin (see
+// admin.controller.js -> approveSeller) — there is no seller signup here.
+// Staff accounts (admin/superadmin) have their own AdminAuthContext.
 
 export const SellerAuthProvider = ({ children }) => {
   const [isSellerAuthenticated, setIsSellerAuthenticated] = useState(false);
@@ -22,7 +17,7 @@ export const SellerAuthProvider = ({ children }) => {
     const checkAuth = async () => {
       try {
         const res = await authApi.getCurrentUser();
-        if (res.data.role === 'admin' || res.data.role === 'superadmin') {
+        if (res.data.role === 'seller') {
           setSeller(res.data);
           setIsSellerAuthenticated(true);
         }
@@ -45,10 +40,13 @@ export const SellerAuthProvider = ({ children }) => {
       });
 
       const loggedInUser = res.data.user;
-      if (loggedInUser.role !== 'admin' && loggedInUser.role !== 'superadmin') {
+      if (loggedInUser.role !== 'seller') {
         return {
           success: false,
-          error: 'This account does not have admin access. Ask a super admin to grant it.',
+          error:
+            loggedInUser.role === 'user'
+              ? "This account isn't an approved seller yet. Apply from your account menu, or check your application status."
+              : 'This account does not have seller access.',
         };
       }
 
@@ -58,15 +56,6 @@ export const SellerAuthProvider = ({ children }) => {
     } catch (err) {
       return { success: false, error: err.message || 'Login failed. Please try again.' };
     }
-  };
-
-  // Admin accounts can only be granted by a super admin — see note above.
-  const sellerSignup = async () => {
-    return {
-      success: false,
-      error:
-        'Self-service admin signup is not available. Create a regular account from the storefront, then have a super admin grant it admin access.',
-    };
   };
 
   const sellerLogout = async () => {
@@ -84,7 +73,6 @@ export const SellerAuthProvider = ({ children }) => {
     seller,
     loading,
     sellerLogin,
-    sellerSignup,
     sellerLogout,
   };
 
