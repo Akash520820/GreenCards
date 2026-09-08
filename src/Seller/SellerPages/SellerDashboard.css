@@ -64,3 +64,25 @@
   color: #2f855a;
   font-size: 0.95rem;
 }
+
+.seller-dashboard-quicklinks {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.seller-quicklink {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 20px;
+  color: #2d3748;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.seller-quicklink:hover {
+  border-color: #4CAF50;
+  color: #2f855a;
+}

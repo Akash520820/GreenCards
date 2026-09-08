@@ -1,10 +1,9 @@
 // SellerDashboard.jsx
 // A real, correctly-scoped seller dashboard: it only ever calls /seller/me
 // and /seller/analytics, both of which the backend scopes to the logged-in
-// seller's own data (seller.controller.js). Product/order management,
-// inventory, and review responses are a separate, not-yet-built piece —
-// this page is intentionally just a status + numbers view for now.
+// seller's own data (seller.controller.js).
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSellerAuth } from '../../context/SellerAuthContext';
 import * as sellerApi from '../../api/seller.api';
 import './SellerDashboard.css';
@@ -64,8 +63,10 @@ const SellerDashboard = () => {
         </div>
       )}
 
-      <div className="seller-dashboard-notice">
-        Product listing, order management, and review tools are coming soon to this panel.
+      <div className="seller-dashboard-quicklinks">
+        <Link to="/seller/products" className="seller-quicklink">📦 Manage Products</Link>
+        <Link to="/seller/orders" className="seller-quicklink">🧾 View Orders</Link>
+        <Link to="/seller/reviews" className="seller-quicklink">⭐ Respond to Reviews</Link>
       </div>
     </div>
   );

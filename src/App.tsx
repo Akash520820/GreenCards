@@ -24,6 +24,10 @@ import BecomeSeller from './Client/ClientPages/BecomeSeller';
 // Seller Layout & Pages (role === "seller" only)
 import SellerAppLayout from './Seller/SellerComponent/Layout/SellerAppLayout';
 import SellerDashboard from './Seller/SellerPages/SellerDashboard';
+import SellerProducts from './Seller/SellerPages/SellerProducts';
+import SellerProductForm from './Seller/SellerPages/SellerProductForm';
+import SellerOrders from './Seller/SellerPages/SellerOrders';
+import SellerReviews from './Seller/SellerPages/SellerReviews';
 import SellerAuthPage from './Seller/SellerPages/SellerAuthPage';
 import ProtectedSellerRoute from './Seller/SellerComponent/ProtectedSellerRoute';
 
@@ -77,6 +81,11 @@ const router = createBrowserRouter([
     children: [
       { path: "/seller", element: <Navigate to="/seller/dashboard" replace /> },
       { path: "/seller/dashboard", element: <SellerDashboard /> },
+      { path: "/seller/products", element: <SellerProducts /> },
+      { path: "/seller/products/new", element: <SellerProductForm /> },
+      { path: "/seller/products/:productId/edit", element: <SellerProductForm /> },
+      { path: "/seller/orders", element: <SellerOrders /> },
+      { path: "/seller/reviews", element: <SellerReviews /> },
     ],
   },
 

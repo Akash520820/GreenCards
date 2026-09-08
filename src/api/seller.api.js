@@ -21,3 +21,19 @@ export const getMySellerProfile = () => unwrap(api.get("/seller/me"));
 // { totalProducts, totalRevenue, totalUnitsSold } — scoped to this seller's own products/orders
 export const getSellerAnalytics = () => unwrap(api.get("/seller/analytics"));
 
+// { page, limit } — returns { products, pagination } — only products this seller created
+export const getMyProducts = (params = {}) => unwrap(api.get("/seller/products", { params }));
+
+// { page, limit } — returns { orders, pagination } — each order trimmed to just this
+// seller's own line items, even when the order also contains other sellers' products
+export const getSellerOrders = (params = {}) => unwrap(api.get("/seller/orders", { params }));
+
+// { page, limit } — returns { reviews, pagination } — reviews on this seller's products
+export const getMyProductReviews = (params = {}) => unwrap(api.get("/seller/reviews", { params }));
+
+export const respondToReview = (reviewId, comment) =>
+  unwrap(api.post(`/seller/reviews/${reviewId}/respond`, { comment }));
+
+export const deleteReviewResponse = (reviewId, responseId) =>
+  unwrap(api.delete(`/seller/reviews/${reviewId}/respond/${responseId}`));
+
