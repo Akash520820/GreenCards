@@ -18,6 +18,7 @@ import ProductDetails from './Client/ClientPages/ProductDetails';
 import MyOrders from './Client/ClientPages/MyOrders';
 import Cart from './Client/ClientPages/Cart';
 import Contact from './Client/ClientPages/Contact';
+import BecomeSeller from './Client/ClientPages/BecomeSeller';
 
 // Seller Layout & Pages
 import SellerAppLayout from './Seller/SellerComponent/Layout/SellerAppLayout';
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <Contact />,
+      },
+      {
+        path: "/become-seller",
+        element: <BecomeSeller />,
       },
     ],
   },
