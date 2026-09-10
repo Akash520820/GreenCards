@@ -1,9 +1,10 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiOutlineShoppingBag, HiCheck, HiStar } from 'react-icons/hi2';
+import { HiOutlineShoppingBag, HiCheck, HiStar, HiHeart, HiOutlineHeart } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
 import { useClientAuth } from '../../context/ClientAuthContext';
+import * as wishlistApi from '../../api/wishlist.api';
 import './ProductCard.css';
 
 const ProductCard = memo(({ product, onLoginRequired }) => {
@@ -12,6 +13,7 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
   const { isAuthenticated } = useClientAuth();
   const [isAdding, setIsAdding] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
     const inCart = cartItems.some((item) => item._id === product._id);
@@ -36,6 +38,25 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
     setTimeout(() => {
       setIsAdding(false);
     }, 600);
+  };
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      if (onLoginRequired) onLoginRequired(product);
+      return;
+    }
+    try {
+      if (isWishlisted) {
+        await wishlistApi.removeFromWishlist(product._id);
+        setIsWishlisted(false);
+      } else {
+        await wishlistApi.addToWishlist(product._id);
+        setIsWishlisted(true);
+      }
+    } catch (err) {
+      console.error('Wishlist toggle error:', err);
+    }
   };
 
   const handleCardClick = () => {
@@ -93,6 +114,17 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
             {discountPercentage}% OFF
           </span>
         )}
+
+        {/* Wishlist Heart Toggle */}
+        <button
+          type="button"
+          className={`product-card-wishlist-btn ${isWishlisted ? 'active' : ''}`}
+          onClick={handleWishlistToggle}
+          aria-label="Wishlist toggle"
+        >
+          {isWishlisted ? <HiHeart size={18} className="heart-filled" /> : <HiOutlineHeart size={18} />}
+        </button>
+
         <AnimatePresence>
           {isInCart && (
             <motion.div

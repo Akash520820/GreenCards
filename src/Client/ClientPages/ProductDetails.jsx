@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../../context/ProductContext';
 import { useCart } from '../../context/CartContext';
 import { useClientAuth } from '../../context/ClientAuthContext';
 import AuthModal from '../ClientsComponent/LogInSignIn/AuthModal';
 import toast, { Toaster } from 'react-hot-toast';
+import { HiStar, HiHeart, HiOutlineHeart } from 'react-icons/hi2';
+import * as reviewsApi from '../../api/reviews.api';
+import * as wishlistApi from '../../api/wishlist.api';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
@@ -18,31 +21,52 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isInCart, setIsInCart] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+
+  // Reviews State
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const fetchReviews = useCallback(async () => {
+    if (!productId) return;
+    setReviewsLoading(true);
+    try {
+      const res = await reviewsApi.getProductReviews(productId);
+      setReviews(res.data || []);
+    } catch (err) {
+      console.error('Error fetching product reviews:', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, [productId]);
 
   useEffect(() => {
     const foundProduct = getProductById(productId);
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedImage(0);
-      
-      // Get related products from same category
+
       const related = getProductsByCategory(foundProduct.category)
-        .filter(p => p._id !== productId)
+        .filter((p) => p._id !== productId)
         .slice(0, 4);
       setRelatedProducts(related);
     } else {
       navigate('/AllProduct');
     }
-  }, [productId, getProductById, navigate]);
+  }, [productId, getProductById, getProductsByCategory, navigate]);
 
   useEffect(() => {
     if (product) {
-      const inCart = cartItems.some(item => item._id === product._id);
+      const inCart = cartItems.some((item) => item._id === product._id);
       setIsInCart(inCart);
+      fetchReviews();
     }
-  }, [cartItems, product]);
+  }, [cartItems, product, fetchReviews]);
 
   if (!product) {
     return (
@@ -53,7 +77,7 @@ const ProductDetails = () => {
     );
   }
 
-  const discountPercentage = product.offerPrice 
+  const discountPercentage = product.offerPrice
     ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
     : 0;
 
@@ -74,16 +98,7 @@ const ProductDetails = () => {
       addToCart(product);
     }
 
-    toast.success(`${product.name} added to cart!`, {
-      duration: 2000,
-      position: 'top-center',
-      style: {
-        background: '#48bb78',
-        color: '#fff',
-        padding: '16px',
-        borderRadius: '8px',
-      },
-    });
+    toast.success(`${product.name} added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -100,6 +115,26 @@ const ProductDetails = () => {
     navigate('/cart');
   };
 
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    try {
+      if (isWishlisted) {
+        await wishlistApi.removeFromWishlist(product._id);
+        setIsWishlisted(false);
+        toast.success('Removed from Wishlist');
+      } else {
+        await wishlistApi.addToWishlist(product._id);
+        setIsWishlisted(true);
+        toast.success('Saved to Wishlist!');
+      }
+    } catch (err) {
+      toast.error('Wishlist update failed');
+    }
+  };
+
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
     if (newQuantity >= 1 && newQuantity <= 10) {
@@ -107,33 +142,52 @@ const ProductDetails = () => {
     }
   };
 
-  const handleRelatedProductClick = (relatedProductId) => {
-    navigate(`/product/${relatedProductId}`);
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    if (!newComment.trim()) {
+      toast.error('Please enter a review comment');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      await reviewsApi.createReview({
+        product: product._id,
+        rating: newRating,
+        comment: newComment.trim(),
+      });
+      toast.success('Review posted successfully!');
+      setNewComment('');
+      fetchReviews();
+    } catch (err) {
+      toast.error(err.message || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
   return (
     <>
-      <Toaster />
+      <Toaster position="top-center" />
       <div className="pd-page">
         <div className="container">
-          
-
           {/* Product Details Section */}
           <div className="pd-container">
-            {/* Image Gallery */}
+            {/* Gallery */}
             <div className="pd-gallery">
               <div className="pd-main-image">
-                <img 
-                  src={product.image[selectedImage]} 
-                  alt={product.name}
-                />
+                <img src={product.image[selectedImage]} alt={product.name} />
                 {discountPercentage > 0 && (
                   <span className="pd-discount-badge">{discountPercentage}% OFF</span>
                 )}
               </div>
               <div className="pd-thumbnail-images">
                 {product.image.map((img, index) => (
-                  <div 
+                  <div
                     key={index}
                     className={`pd-thumbnail ${selectedImage === index ? 'active' : ''}`}
                     onClick={() => setSelectedImage(index)}
@@ -144,25 +198,28 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Product Info */}
+            {/* Info */}
             <div className="pd-info">
               <div className="pd-category">{product.category}</div>
               <h1 className="pd-name">{product.name}</h1>
-              
+
               {/* Rating */}
               <div className="pd-rating">
-                {[...Array(4)].map((_, index) => (
-                  <svg key={index} width="20" height="20" viewBox="0 0 24 24" fill="#48bb78">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                ))}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#e2e8f0">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <span className="pd-rating-count">(4.0) · 124 Reviews</span>
+                <div className="pd-stars">
+                  {[...Array(5)].map((_, i) => (
+                    <HiStar
+                      key={i}
+                      size={18}
+                      className={i < Math.floor(product.ratings?.average || 4) ? 'star-filled' : 'star-empty'}
+                    />
+                  ))}
+                </div>
+                <span className="pd-rating-count">
+                  ({(product.ratings?.average || 4.0).toFixed(1)}) · {reviews.length} Reviews
+                </span>
               </div>
 
-              {/* Price */}
+              {/* Pricing */}
               <div className="pd-price-section">
                 <div className="pd-price-row">
                   <span className="pd-current-price">₹{currentPrice}</span>
@@ -176,157 +233,133 @@ const ProductDetails = () => {
                 <p className="pd-tax-info">Inclusive of all taxes</p>
               </div>
 
-              {/* Stock Status */}
-              <div className="pd-stock-status">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#48bb78" strokeWidth="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                <span>In Stock</span>
-              </div>
-
-              {/* Quantity Selector */}
-              <div className="pd-quantity-section">
-                <label>Quantity:</label>
-                <div className="pd-quantity-controls">
-                  <button 
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                  </button>
-                  <span className="pd-quantity-value">{quantity}</span>
-                  <button 
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= 10}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                  </button>
+              {/* Quantity & Wishlist */}
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="pd-quantity-section mb-0">
+                  <label>Quantity:</label>
+                  <div className="pd-quantity-controls">
+                    <button onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+                      -
+                    </button>
+                    <span className="pd-quantity-value">{quantity}</span>
+                    <button onClick={() => handleQuantityChange(1)} disabled={quantity >= 10}>
+                      +
+                    </button>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  className={`btn btn-outline-danger rounded-pill px-3 py-2 ${isWishlisted ? 'active' : ''}`}
+                  onClick={handleWishlistToggle}
+                >
+                  {isWishlisted ? <HiHeart size={20} /> : <HiOutlineHeart size={20} />}
+                  <span className="ms-1">{isWishlisted ? 'Saved' : 'Wishlist'}</span>
+                </button>
               </div>
 
-              {/* Action Buttons */}
+              {/* Actions */}
               <div className="pd-actions">
-                <button 
+                <button
                   className={`pd-add-to-cart-btn ${isInCart ? 'in-cart' : ''}`}
                   onClick={handleAddToCart}
                 >
-                  {isInCart ? (
-                    <>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                      </svg>
-                      Go to Cart
-                    </>
-                  ) : (
-                    <>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="9" cy="21" r="1"/>
-                        <circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                      </svg>
-                      Add to Cart
-                    </>
-                  )}
+                  {isInCart ? 'Go to Cart' : 'Add to Cart'}
                 </button>
                 <button className="pd-buy-now-btn" onClick={handleBuyNow}>
                   Buy Now
                 </button>
               </div>
-
-              {/* Features */}
-              <div className="pd-features">
-                <div className="pd-feature-item">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#48bb78" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                  <span>100% Authentic</span>
-                </div>
-                <div className="pd-feature-item">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#48bb78" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  <span>Fast Delivery</span>
-                </div>
-                <div className="pd-feature-item">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#48bb78" strokeWidth="2">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  <span>Quality Assured</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Product Description */}
-          <div className="pd-description-section">
+          {/* Description */}
+          <div className="pd-description-section mt-5">
             <h2>Product Description</h2>
             <div className="pd-description-content">
-              {product.description && product.description.length > 0 ? (
+              {Array.isArray(product.description) && product.description.length > 0 ? (
                 <ul>
                   {product.description.map((desc, index) => (
                     <li key={index}>{desc}</li>
                   ))}
                 </ul>
               ) : (
-                <p>This is a premium quality {product.name} from the {product.category} category. Perfect for your daily needs.</p>
+                <p>{product.description || `Premium quality ${product.name} from the ${product.category} collection.`}</p>
               )}
             </div>
           </div>
 
-          {/* Related Products */}
-          {relatedProducts.length > 0 && (
-            <div className="pd-related-section">
-              <h2>Related Products</h2>
-              <div className="pd-related-grid">
-                {relatedProducts.map((relatedProduct) => {
-                  const relatedDiscount = relatedProduct.offerPrice 
-                    ? Math.round(((relatedProduct.price - relatedProduct.offerPrice) / relatedProduct.price) * 100)
-                    : 0;
+          {/* Customer Reviews Section (Dynamic) */}
+          <div className="pd-reviews-section mt-5">
+            <h2>Customer Reviews ({reviews.length})</h2>
 
-                  return (
-                    <div 
-                      key={relatedProduct._id} 
-                      className="pd-related-card"
-                      onClick={() => handleRelatedProductClick(relatedProduct._id)}
-                    >
-                      <div className="pd-related-image">
-                        <img src={relatedProduct.image[0]} alt={relatedProduct.name} />
-                        {relatedDiscount > 0 && (
-                          <span className="pd-related-discount-badge">{relatedDiscount}% OFF</span>
-                        )}
-                      </div>
-                      <div className="pd-related-info">
-                        <p className="pd-related-category">{relatedProduct.category}</p>
-                        <h3 className="pd-related-name">{relatedProduct.name}</h3>
-                        <div className="pd-related-price">
-                          <span className="pd-related-current-price">₹{relatedProduct.offerPrice || relatedProduct.price}</span>
-                          {relatedProduct.offerPrice && (
-                            <span className="pd-related-original-price">₹{relatedProduct.price}</span>
-                          )}
-                        </div>
+            {/* Post Review Form */}
+            <div className="card border-0 shadow-sm p-4 mb-4" style={{ borderRadius: '16px' }}>
+              <h4 className="mb-3">Write a Review</h4>
+              <form onSubmit={handleReviewSubmit}>
+                <div className="mb-3">
+                  <label className="form-label me-2 fw-semibold">Rating:</label>
+                  <div className="d-inline-flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <HiStar
+                        key={star}
+                        size={24}
+                        style={{ cursor: 'pointer' }}
+                        className={star <= newRating ? 'star-filled' : 'star-empty'}
+                        onClick={() => setNewRating(star)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    placeholder="Share your experience with this product..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    required
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-success rounded-pill px-4"
+                  disabled={submittingReview}
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            </div>
+
+            {/* Reviews List */}
+            {reviewsLoading ? (
+              <p>Loading reviews...</p>
+            ) : reviews.length > 0 ? (
+              <div className="d-flex flex-column gap-3">
+                {reviews.map((rev) => (
+                  <div key={rev._id} className="card border-0 shadow-sm p-3" style={{ borderRadius: '12px' }}>
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <span className="fw-bold">{rev.user?.userName || rev.user?.fullName || 'Verified Buyer'}</span>
+                      <div className="d-flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <HiStar key={i} size={16} className={i < rev.rating ? 'star-filled' : 'star-empty'} />
+                        ))}
                       </div>
                     </div>
-                  );
-                })}
+                    <p className="text-secondary m-0">{rev.comment}</p>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-muted">No customer reviews yet. Be the first to review!</p>
+            )}
+          </div>
         </div>
       </div>
 
-      <AuthModal 
-        show={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        pendingProduct={product}
-      />
+      <AuthModal show={showAuthModal} onClose={() => setShowAuthModal(false)} pendingProduct={product} />
     </>
   );
 };

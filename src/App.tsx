@@ -46,6 +46,8 @@ import ProtectedAdminRoute from './Admin/AdminComponent/ProtectedAdminRoute';
 import ProtectedSuperAdminRoute from './Admin/AdminComponent/ProtectedSuperAdminRoute';
 
 // Get base URL for GitHub Pages
+import Wishlist from './Client/ClientPages/Wishlist';
+
 const basename = import.meta.env.BASE_URL;
 
 const router = createBrowserRouter([
@@ -60,6 +62,7 @@ const router = createBrowserRouter([
       { path: "/product/:productId", element: <ProductDetails /> },
       { path: "/cart", element: <Cart /> },
       { path: "/my-orders", element: <MyOrders /> },
+      { path: "/wishlist", element: <Wishlist /> },
       { path: "/contact", element: <Contact /> },
       { path: "/become-seller", element: <BecomeSeller /> },
     ],
