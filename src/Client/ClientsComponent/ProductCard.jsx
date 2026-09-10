@@ -1,55 +1,64 @@
-// ProductCard.jsx - Updated with click navigation
 import React, { useState, useEffect, memo } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 Add this
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { HiOutlineShoppingBag, HiCheck, HiStar } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
 import { useClientAuth } from '../../context/ClientAuthContext';
 import './ProductCard.css';
 
 const ProductCard = memo(({ product, onLoginRequired }) => {
-  const navigate = useNavigate(); // 👈 Add this
+  const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
   const { isAuthenticated } = useClientAuth();
   const [isAdding, setIsAdding] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
 
-  // Check if product is in cart
   useEffect(() => {
-    const inCart = cartItems.some(item => item._id === product._id);
+    const inCart = cartItems.some((item) => item._id === product._id);
     setIsInCart(inCart);
   }, [cartItems, product._id]);
 
   const handleAddToCart = (e) => {
-    e.stopPropagation(); // 👈 Prevent card click when clicking button
-    
-    // Check if user is authenticated
+    e.stopPropagation();
+
     if (!isAuthenticated) {
-      // Trigger login modal with this product
       if (onLoginRequired) {
         onLoginRequired(product);
       }
       return;
     }
 
-    if (isInCart) return; // Don't add if already in cart
-    
+    if (isInCart) return;
+
     setIsAdding(true);
     addToCart(product);
-    
-    // Reset button state after animation
+
     setTimeout(() => {
       setIsAdding(false);
     }, 600);
   };
 
-  // 👈 Add click handler to navigate to product details
   const handleCardClick = () => {
     navigate(`/product/${product._id}`);
   };
 
-  const discountPercentage = product.offerPrice 
+  const discountPercentage = product.offerPrice
     ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
     : 0;
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+    hover: {
+      y: -6,
+      boxShadow: '0 16px 32px rgba(15, 23, 42, 0.12)',
+      transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
+    },
+    tap: { scale: 0.985 },
+  };
+
+  const ratingVal = product.ratings?.average || 4.0;
+  const ratingCount = product.ratings?.count || 4;
 
   return (
     <motion.div
@@ -65,54 +74,59 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
       tabIndex={0}
       aria-label={`View ${product.name}`}
       style={{ cursor: 'pointer' }}
-      whileHover={{ y: -6, boxShadow: '0 12px 24px rgba(0,0,0,0.12)' }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
+      whileTap="tap"
+      variants={cardVariants}
     >
       <div className="product-card-image-container">
-        <img 
-          src={product.image[0]} 
-          alt={product.name} 
+        <motion.img
+          src={Array.isArray(product.image) ? product.image[0] : product.image}
+          alt={product.name}
           className="product-card-image"
+          whileHover={{ scale: 1.06 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         />
         {discountPercentage > 0 && (
           <span className="product-card-discount-badge">
             {discountPercentage}% OFF
           </span>
         )}
-        {isInCart && (
-          <div className="product-card-in-cart-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-            </svg>
-            Added
-          </div>
-        )}
-      </div>
-      
-      <div className="product-card-content">
-        <p className="product-card-category">{product.category}</p>
-        <h3 className="product-card-name">{product.name}</h3>
-        
-        {/* Star Rating */}
-        <div className="product-card-rating" aria-hidden="true">
-          {[...Array(4)].map((_, index) => (
-            <svg 
-              key={index} 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="#48bb78"
+        <AnimatePresence>
+          {isInCart && (
+            <motion.div
+              className="product-card-in-cart-badge"
+              initial={{ opacity: 0, x: 12, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
             >
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          ))}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#e2e8f0">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <span className="product-card-rating-count">(4)</span>
+              <HiCheck size={14} />
+              Added
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="product-card-content">
+        <p className="product-card-category">{product.category || 'Grocery'}</p>
+        <h3 className="product-card-name">{product.name}</h3>
+
+        {/* Rating */}
+        <div className="product-card-rating" aria-label={`Rated ${ratingVal} out of 5 stars`}>
+          <div className="product-card-stars">
+            {[...Array(5)].map((_, i) => (
+              <HiStar
+                key={i}
+                size={14}
+                className={i < Math.floor(ratingVal) ? 'star-filled' : 'star-empty'}
+              />
+            ))}
+          </div>
+          <span className="product-card-rating-count">({ratingCount})</span>
         </div>
-        
+
         <div className="product-card-footer">
           <div className="product-card-pricing">
             {product.offerPrice ? (
@@ -124,30 +138,26 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
               <span className="product-card-price-offer">₹{product.price}</span>
             )}
           </div>
-          
-          <button 
+
+          <motion.button
             className={`product-card-add-btn ${isAdding ? 'adding' : ''} ${isInCart ? 'in-cart' : ''}`}
-            onClick={handleAddToCart} // 👈 Updated to use new handler with stopPropagation
+            onClick={handleAddToCart}
             disabled={isAdding || isInCart}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.15 }}
           >
             {isInCart ? (
               <>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                </svg>
+                <HiCheck size={16} />
                 Added
               </>
             ) : (
               <>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="9" cy="21" r="1"/>
-                  <circle cx="20" cy="21" r="1"/>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                </svg>
+                <HiOutlineShoppingBag size={16} />
                 {isAdding ? 'Adding…' : 'Add'}
               </>
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>

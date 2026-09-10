@@ -104,7 +104,18 @@ export const ProductProvider = ({ children }) => {
 
   const getProductsByCategory = (category) => {
     if (!category || category === 'All') return products.filter((p) => p.inStock);
-    return products.filter((p) => p.category === category && p.inStock);
+    const catLower = category.toLowerCase().trim();
+    return products.filter((p) => {
+      if (!p.inStock) return false;
+      const pCatLower = (p.category || '').toLowerCase().trim();
+      const pCatId = (p.categoryId || '').toString();
+      return (
+        pCatLower === catLower ||
+        pCatId === category ||
+        pCatLower.includes(catLower) ||
+        catLower.includes(pCatLower)
+      );
+    });
   };
 
   const getProductById = (productId) => products.find((p) => p._id === productId);

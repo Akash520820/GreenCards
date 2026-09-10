@@ -4,9 +4,10 @@ import { Link, useLocation } from "react-router-dom";
 import CartBadge from "./CartBadge";
 import AuthModal from "../LogInSignIn/AuthModal";
 import UserAccountDropdown from "./UserAccountDropdown";
+import CategoryMegaMenu from "./CategoryMegaMenu";
+import SearchBar from "./SearchBar";
 import { useClientAuth } from "../../../context/ClientAuthContext";
 import "./Navbar.css";
-import SearchBar from "./SearchBar";
 
 const Navbar = () => {
   const location = useLocation();
@@ -33,7 +34,6 @@ const Navbar = () => {
 
   const handleCloseModal = () => {
     setShowAuthModal(false);
-    // Clear pending redirect after modal closes if user didn't authenticate
     setTimeout(() => {
       if (!isAuthenticated) {
         setPendingRedirect(null);
@@ -54,7 +54,7 @@ const Navbar = () => {
           {/* Search Bar - Always visible */}
           <SearchBar />
 
-          {/* Hamburger Toggle - Only visible on desktop */}
+          {/* Hamburger Toggle - Mobile */}
           <button
             className="navbar-toggler"
             type="button"
@@ -67,9 +67,9 @@ const Navbar = () => {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          {/* Desktop Menu - Hidden on mobile */}
+          {/* Desktop Menu */}
           <div className="collapse navbar-collapse" id="navbarContent">
-            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-lg-2">
               <li className="nav-item">
                 <Link 
                   className={`nav-link navbar-link ${isActive('/') ? 'active' : ''}`} 
@@ -78,15 +78,21 @@ const Navbar = () => {
                   Home
                 </Link>
               </li>
+
+              {/* Category Mega-Menu */}
+              <li className="nav-item">
+                <CategoryMegaMenu />
+              </li>
+
               <li className="nav-item">
                 <Link 
                   className={`nav-link navbar-link ${isActive('/AllProduct') ? 'active' : ''}`} 
                   to="/AllProduct"
                 >
-                  All Product
+                  All Products
                 </Link>
               </li>
-              {/* MyOrders Link - Always visible, shows auth modal if not authenticated */}
+
               <li className="nav-item">
                 <Link 
                   className={`nav-link navbar-link ${isActive('/my-orders') ? 'active' : ''}`} 
@@ -98,8 +104,8 @@ const Navbar = () => {
               </li>
             </ul>
 
-            {/* Desktop Actions */}
-            <div className="navbar-actions ms-lg-4">
+            {/* Actions */}
+            <div className="navbar-actions ms-lg-3">
               <div className="navbar-desktop-cart-login">
                 <CartBadge />
                 {isAuthenticated ? (
@@ -108,7 +114,7 @@ const Navbar = () => {
                   <button 
                     type="button" 
                     className="btn btn-success navbar-login-btn px-4" 
-                    style={{borderRadius:"20px"}}
+                    style={{ borderRadius: "20px" }}
                     onClick={handleLoginClick}
                   >
                     Login

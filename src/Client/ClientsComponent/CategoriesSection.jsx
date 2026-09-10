@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import CategoryCard from './CategoryCard';
-import { categories } from '../../assets/assets';
+import { categories as fallbackCategories } from '../../assets/assets';
+import { useProducts } from '../../context/ProductContext';
 import './CategoriesSection.css';
 
 const gridVariants = {
@@ -16,10 +17,28 @@ const itemVariants = {
 
 const CategoriesSection = () => {
   const navigate = useNavigate();
+  const { categories: dbCategories } = useProducts();
+
+  // Combine DB categories with fallback assets for rich thumbnails & colors
+  const displayCategories = (dbCategories && dbCategories.length > 0)
+    ? dbCategories.map((dbCat) => {
+        const match = fallbackCategories.find(
+          (f) =>
+            f.text.toLowerCase() === dbCat.name.toLowerCase() ||
+            f.path.toLowerCase() === dbCat.name.toLowerCase() ||
+            f.path.toLowerCase() === (dbCat.slug || '').toLowerCase()
+        );
+        return {
+          text: dbCat.name,
+          path: dbCat.name,
+          image: dbCat.image || match?.image || fallbackCategories[0].image,
+          bgColor: match?.bgColor || '#F0F5DE',
+        };
+      })
+    : fallbackCategories;
 
   const handleCategoryClick = (path) => {
-    // Navigate to AllProduct page with category filter as URL parameter
-    navigate(`/AllProduct?category=${path}`);
+    navigate(`/AllProduct?category=${encodeURIComponent(path)}`);
   };
 
   return (
@@ -33,8 +52,8 @@ const CategoriesSection = () => {
           whileInView="show"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {categories.map((category, index) => (
-            <motion.div key={index} variants={itemVariants}>
+          {displayCategories.map((category, index) => (
+            <motion.div key={category.text || index} variants={itemVariants}>
               <CategoryCard
                 category={category}
                 onClick={handleCategoryClick}

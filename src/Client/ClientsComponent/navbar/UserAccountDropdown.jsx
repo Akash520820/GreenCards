@@ -113,10 +113,40 @@ const UserAccountDropdown = ({ isMobile = false }) => {
                 onClick={() => setIsOpen(false)}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 3h18v18H3z" opacity="0" />
                   <path d="M20 7h-3V6a4 4 0 0 0-8 0v1H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zM9 6a3 3 0 0 1 6 0v1H9V6z" />
                 </svg>
                 Sell on GreenCards
+              </Link>
+            )}
+
+            {(user?.role === 'seller' || user?.role === 'admin' || user?.role === 'superadmin') && (
+              <Link
+                to="/seller/dashboard"
+                className="user-account-dropdown-item"
+                onClick={() => setIsOpen(false)}
+                style={{ color: '#047857', fontWeight: '600' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                </svg>
+                Seller Studio Dashboard
+              </Link>
+            )}
+
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
+              <Link
+                to="/admin/dashboard"
+                className="user-account-dropdown-item"
+                onClick={() => setIsOpen(false)}
+                style={{ color: '#10b981', fontWeight: '600' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Admin Command Center
               </Link>
             )}
             

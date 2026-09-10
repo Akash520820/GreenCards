@@ -3,6 +3,7 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import AdminSidebar from '../AdminSidebar';
 import AdminMobileNavbar from '../AdminMobileNavbar';
+import AdminHeader from '../AdminHeader';
 import './AdminAppLayout.css';
 
 const pageVariants = {
@@ -27,8 +28,9 @@ const AdminAppLayout = () => {
       {/* Desktop Sidebar */}
       <AdminSidebar />
 
-      {/* Main Content */}
+      {/* Main Content & Topbar Header */}
       <div className="admin-layout-content">
+        <AdminHeader />
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
