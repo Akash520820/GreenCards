@@ -8,14 +8,14 @@ import AuthModal from '../LogInSignIn/AuthModal';
 import './CartBadge.css';
 
 const CartBadge = () => {
-  const { cartItems, getTotalItems, getCartTotal } = useCart();
+  const { cartItems, getTotalItems, getTotalPrice } = useCart();
   const { isAuthenticated } = useClientAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const cartCount = getTotalItems();
-  const cartTotal = getCartTotal();
+  const cartTotal = getTotalPrice();
 
   const handleCartClick = (e) => {
     if (!isAuthenticated) {
