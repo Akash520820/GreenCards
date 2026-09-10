@@ -43,7 +43,9 @@ const Cart = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [addresses, setAddresses] = useState([]);
+
   const [isProcessingOrder, setIsProcessingOrder] = useState(false); // prevent double submission
   const [newAddress, setNewAddress] = useState({
     fullName: '',
@@ -343,7 +345,11 @@ const Cart = () => {
                 subtotal={priceData.subtotal}
                 tax={priceData.tax}
                 total={priceData.total}
+                appliedCoupon={appliedCoupon}
+                onApplyCoupon={setAppliedCoupon}
+                onRemoveCoupon={() => setAppliedCoupon(null)}
               />
+
 
               <button className="checkout-btn" onClick={handleCheckout}>
                 Proceed to Checkout
