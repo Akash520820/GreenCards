@@ -5,8 +5,11 @@ import { AiFillProduct } from "react-icons/ai";
 import { BsCartFill } from "react-icons/bs";
 import { IoBag } from "react-icons/io5";
 import { MdAccountCircle } from "react-icons/md";
+import { HiSquares2X2, HiXMark } from "react-icons/hi2";
 import { useCart } from '../../../context/CartContext';
 import { useClientAuth } from '../../../context/ClientAuthContext';
+import { useProducts } from '../../../context/ProductContext';
+import { categories as fallbackCategories } from '../../../assets/assets';
 import AuthModal from '../LogInSignIn/AuthModal';
 import './BottomNavbar.css';
 
@@ -15,13 +18,27 @@ const BottomNavbar = () => {
   const navigate = useNavigate();
   const { getTotalItems } = useCart();
   const { isAuthenticated, user, logout } = useClientAuth();
+  const { categories: dbCategories } = useProducts();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const dropdownRef = useRef(null);
   const cartCount = getTotalItems();
   const wasAuthenticatedRef = useRef(isAuthenticated);
+
+  const displayCategories = (dbCategories && dbCategories.length > 0)
+    ? dbCategories.map((dbCat) => {
+        const match = fallbackCategories.find(
+          (f) => f.text.toLowerCase() === dbCat.name.toLowerCase() || f.path.toLowerCase() === dbCat.name.toLowerCase()
+        );
+        return {
+          name: dbCat.name,
+          image: dbCat.image || match?.image || fallbackCategories[0].image,
+        };
+      })
+    : fallbackCategories.map((f) => ({ name: f.text, image: f.image }));
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -69,6 +86,15 @@ const BottomNavbar = () => {
     }
   };
 
+  const handleCategoriesClick = () => {
+    setShowCategoriesSheet((prev) => !prev);
+  };
+
+  const handleCategorySelect = (categoryName) => {
+    setShowCategoriesSheet(false);
+    navigate(`/AllProduct?category=${encodeURIComponent(categoryName)}`);
+  };
+
   const handleCartClick = (e) => {
     if (!isAuthenticated) {
       e.preventDefault();
@@ -102,10 +128,13 @@ const BottomNavbar = () => {
   return (
     <>
       {/* Backdrop */}
-      {showUserMenu && (
+      {(showUserMenu || showCategoriesSheet) && (
         <div 
-          className={`bottom-navbar-backdrop ${showUserMenu ? 'show' : ''}`}
-          onClick={() => setShowUserMenu(false)}
+          className="bottom-navbar-backdrop show"
+          onClick={() => {
+            setShowUserMenu(false);
+            setShowCategoriesSheet(false);
+          }}
         />
       )}
 
@@ -129,6 +158,18 @@ const BottomNavbar = () => {
             </div>
             <span className="bottom-navbar-label">Home</span>
           </Link>
+
+          {/* Categories */}
+          <button
+            type="button"
+            className={`bottom-navbar-item ${showCategoriesSheet ? 'active' : ''}`}
+            onClick={handleCategoriesClick}
+          >
+            <div className="bottom-navbar-icon-wrapper">
+              <HiSquares2X2 className="bottom-navbar-icon" />
+            </div>
+            <span className="bottom-navbar-label">Categories</span>
+          </button>
 
           {/* All Products */}
           <Link 
@@ -213,6 +254,33 @@ const BottomNavbar = () => {
           </div>
         </div>
       </nav>
+
+      {/* Categories Bottom Sheet */}
+      <div className={`bottom-navbar-categories-sheet ${showCategoriesSheet ? 'show' : ''}`}>
+        <div className="bottom-navbar-categories-header">
+          <span>Shop by Category</span>
+          <button
+            type="button"
+            className="bottom-navbar-categories-close"
+            onClick={() => setShowCategoriesSheet(false)}
+            aria-label="Close categories"
+          >
+            <HiXMark size={20} />
+          </button>
+        </div>
+        <div className="bottom-navbar-categories-grid">
+          {displayCategories.map((cat) => (
+            <div
+              key={cat.name}
+              className="bottom-navbar-category-item"
+              onClick={() => handleCategorySelect(cat.name)}
+            >
+              <img src={cat.image} alt={cat.name} className="bottom-navbar-category-img" />
+              <span className="bottom-navbar-category-name">{cat.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Auth Modal */}
       <AuthModal 
