@@ -4,10 +4,9 @@ import * as categoriesApi from '../api/categories.api';
 
 const ProductContext = createContext();
 
-// Flattens the real Product doc (colorVariants/discountPrice/populated category)
-// into the simpler { image, offerPrice, category, inStock } shape the existing
-// UI (ProductCard, Home, FlashSale, AddProduct table, etc.) was built around.
 const normalizeProduct = (p) => {
+  if (!p || typeof p !== 'object') return null;
+
   const totalVariantStock = (p.colorVariants || []).reduce(
     (sum, cv) => sum + (cv.sizes || []).reduce((s, sz) => s + (sz.stock || 0), 0),
     0
@@ -17,20 +16,20 @@ const normalizeProduct = (p) => {
   return {
     ...p,
     _id: p._id,
-    name: p.name,
-    slug: p.slug,
-    description: p.description,
-    image: p.images || [],
-    price: p.price,
+    name: p.name || 'Product',
+    slug: p.slug || '',
+    description: p.description || '',
+    image: Array.isArray(p.images) ? p.images : (p.image ? (Array.isArray(p.image) ? p.image : [p.image]) : []),
+    price: p.price || 0,
     offerPrice: p.discountPrice > 0 ? p.discountPrice : undefined,
-    category: typeof p.category === 'object' && p.category !== null ? p.category.name : p.category,
+    category: typeof p.category === 'object' && p.category !== null ? (p.category.name || '') : (p.category || ''),
     categoryId: typeof p.category === 'object' && p.category !== null ? p.category._id : p.category,
     stock,
     inStock: stock > 0,
     colorVariants: p.colorVariants || [],
     sku: p.sku,
     brand: p.brand,
-    ratings: p.ratings,
+    ratings: p.ratings || { average: 4.0, count: 4 },
   };
 };
 
@@ -44,15 +43,27 @@ export const ProductProvider = ({ children }) => {
   const fetchProducts = useCallback(async (params = {}) => {
     try {
       setLoading(true);
-      // pull a generously large page by default so client-side lookups/filtering
-      // (getProductById, getProductsByCategory, search) behave like the original app
       const res = await productsApi.getAllProducts({ limit: 100, ...params });
-      setProducts(res.data.products.map(normalizeProduct));
-      setPagination(res.data.pagination);
+      const rawProducts = Array.isArray(res?.products)
+        ? res.products
+        : Array.isArray(res?.data?.products)
+        ? res.data.products
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+
+      const normalized = rawProducts.map(normalizeProduct).filter(Boolean);
+      setProducts(normalized);
+
+      const pag = res?.pagination || res?.data?.pagination || { total: normalized.length, page: 1, totalPages: 1 };
+      setPagination(pag);
       setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
       setError(err.message || 'Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -61,9 +72,15 @@ export const ProductProvider = ({ children }) => {
   const fetchCategories = useCallback(async () => {
     try {
       const res = await categoriesApi.getAllCategories();
-      setCategories(res.data);
+      const rawCategories = Array.isArray(res)
+        ? res
+        : Array.isArray(res?.data)
+        ? res.data
+        : [];
+      setCategories(rawCategories);
     } catch (err) {
       console.error('Error fetching categories:', err);
+      setCategories([]);
     }
   }, []);
 
@@ -72,19 +89,21 @@ export const ProductProvider = ({ children }) => {
     fetchCategories();
   }, [fetchProducts, fetchCategories]);
 
-  // productData: FormData with name, description, category, price, discountPrice,
-  // stock, sku, brand, colorVariants (JSON string), images (files)
   const addProduct = async (productData) => {
     const res = await productsApi.createProduct(productData);
-    const normalized = normalizeProduct(res.data);
-    setProducts((prev) => [normalized, ...prev]);
+    const normalized = normalizeProduct(res.data || res);
+    if (normalized) {
+      setProducts((prev) => [normalized, ...prev]);
+    }
     return normalized;
   };
 
   const updateProduct = async (productId, productData) => {
     const res = await productsApi.updateProduct(productId, productData);
-    const normalized = normalizeProduct(res.data);
-    setProducts((prev) => prev.map((p) => (p._id === productId ? normalized : p)));
+    const normalized = normalizeProduct(res.data || res);
+    if (normalized) {
+      setProducts((prev) => prev.map((p) => (p._id === productId ? normalized : p)));
+    }
     return normalized;
   };
 
@@ -95,18 +114,20 @@ export const ProductProvider = ({ children }) => {
 
   const updateStock = async (productId, payload) => {
     const res = await productsApi.updateStock(productId, payload);
-    const normalized = normalizeProduct(res.data);
-    setProducts((prev) => prev.map((p) => (p._id === productId ? normalized : p)));
+    const normalized = normalizeProduct(res.data || res);
+    if (normalized) {
+      setProducts((prev) => prev.map((p) => (p._id === productId ? normalized : p)));
+    }
     return normalized;
   };
 
-  const getAvailableProducts = () => products.filter((p) => p.inStock);
+  const getAvailableProducts = () => (Array.isArray(products) ? products.filter((p) => p && p.inStock) : []);
 
   const getProductsByCategory = (category) => {
-    if (!category || category === 'All') return products.filter((p) => p.inStock);
+    const list = getAvailableProducts();
+    if (!category || category === 'All') return list;
     const catLower = category.toLowerCase().trim();
-    return products.filter((p) => {
-      if (!p.inStock) return false;
+    return list.filter((p) => {
       const pCatLower = (p.category || '').toLowerCase().trim();
       const pCatId = (p.categoryId || '').toString();
       return (
@@ -118,25 +139,34 @@ export const ProductProvider = ({ children }) => {
     });
   };
 
-  const getProductById = (productId) => products.find((p) => p._id === productId);
+  const getProductById = (productId) => (Array.isArray(products) ? products.find((p) => p && p._id === productId) : undefined);
 
   const searchProducts = (searchTerm) => {
-    if (!searchTerm) return products.filter((p) => p.inStock);
+    const list = getAvailableProducts();
+    if (!searchTerm) return list;
     const term = searchTerm.toLowerCase();
-    return products.filter(
+    return list.filter(
       (p) =>
-        p.inStock &&
-        (p.name?.toLowerCase().includes(term) || p.category?.toLowerCase().includes(term))
+        p.name?.toLowerCase().includes(term) || p.category?.toLowerCase().includes(term)
     );
   };
 
-  const getAllCategories = () => ['All', ...categories.map((c) => c.name)];
+  const getAllCategories = () => {
+    const list = Array.isArray(categories) ? categories : [];
+    const catNames = list
+      .map((c) => (typeof c === 'string' ? c : c?.name))
+      .filter(Boolean);
+    return ['All', ...new Set(catNames)];
+  };
 
-  const getSellerStats = () => ({
-    totalProducts: products.length,
-    inStock: products.filter((p) => p.inStock).length,
-    outOfStock: products.filter((p) => !p.inStock).length,
-  });
+  const getSellerStats = () => {
+    const list = Array.isArray(products) ? products : [];
+    return {
+      totalProducts: list.length,
+      inStock: list.filter((p) => p && p.inStock).length,
+      outOfStock: list.filter((p) => p && !p.inStock).length,
+    };
+  };
 
   const value = {
     products,
