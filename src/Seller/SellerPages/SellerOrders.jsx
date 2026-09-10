@@ -116,12 +116,35 @@ const SellerOrders = () => {
                         </div>
                       ))}
                     </div>
-                    <div className="so-payment">
-                      <span>Payment: {order.paymentMethod.toUpperCase()}</span>
-                      <span>Status: {order.paymentStatus}</span>
+                    <div className="so-payment" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                      <div>
+                        <span>Payment: {order.paymentMethod.toUpperCase()} | Status: {order.paymentStatus}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Update Status:</label>
+                        <select
+                          value={order.items[0]?.itemStatus || order.orderStatus}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            try {
+                              await sellerApi.updateSellerOrderItemStatus(order._id, newStatus);
+                              loadOrders(pagination.page);
+                            } catch (err) {
+                              alert(err.message || 'Failed to update status');
+                            }
+                          }}
+                          style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '13px' }}
+                        >
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}
+
               </div>
             ))}
           </div>

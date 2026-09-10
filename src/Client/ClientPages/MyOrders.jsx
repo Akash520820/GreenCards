@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useClientAuth } from '../../context/ClientAuthContext';
 import { useOrders } from '../../context/OrderContext';
+import { downloadOrderInvoice } from '../../api/orders.api';
 import './MyOrders.css';
+
 
 // Backend orderStatus enum: processing | shipped | delivered | cancelled
 const STATUS_FILTERS = ['All', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -182,15 +184,23 @@ const MyOrders = () => {
                   </div>
                 </div>
 
-                <div className="order-card-footer">
+                <div className="order-card-footer" style={{ display: 'flex', gap: '10px' }}>
                   <button 
                     className="view-details-btn"
                     onClick={() => handleViewDetails(order)}
                   >
                     View Details
                   </button>
+                  <button 
+                    className="view-details-btn"
+                    style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }}
+                    onClick={() => downloadOrderInvoice(order._id)}
+                  >
+                    📄 Invoice PDF
+                  </button>
                 </div>
               </div>
+
             ))}
           </div>
         )}

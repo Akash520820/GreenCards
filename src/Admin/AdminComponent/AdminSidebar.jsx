@@ -12,7 +12,9 @@ import {
   FiMail,
   FiPhone,
   FiBarChart2,
-  FiShield
+  FiShield,
+  FiUserCheck,
+  FiFlag
 } from 'react-icons/fi';
 
 import './AdminSidebar.css';
@@ -176,6 +178,22 @@ const AdminSidebar = () => {
         >
           <FiBarChart2 className="sidebar-nav-icon" /> 
           <span className="sidebar-nav-text">Sales Analytics</span>
+        </Link>
+
+        <Link
+          to="/admin/seller-applications"
+          className={`sidebar-nav-link ${isActive('/admin/seller-applications') ? 'sidebar-nav-link-active' : ''}`}
+        >
+          <FiUserCheck className="sidebar-nav-icon" />
+          <span className="sidebar-nav-text">Seller Applications</span>
+        </Link>
+
+        <Link
+          to="/admin/reported-reviews"
+          className={`sidebar-nav-link ${isActive('/admin/reported-reviews') ? 'sidebar-nav-link-active' : ''}`}
+        >
+          <FiFlag className="sidebar-nav-icon" />
+          <span className="sidebar-nav-text">Reported Reviews</span>
         </Link>
 
         {isSuperAdmin && (

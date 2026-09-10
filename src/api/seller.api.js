@@ -34,6 +34,11 @@ export const getMyProductReviews = (params = {}) => unwrap(api.get("/seller/revi
 export const respondToReview = (reviewId, comment) =>
   unwrap(api.post(`/seller/reviews/${reviewId}/respond`, { comment }));
 
+export const updateSellerOrderItemStatus = (orderId, itemStatus) =>
+  unwrap(api.patch(`/seller/orders/${orderId}/status`, { itemStatus }));
+
 export const deleteReviewResponse = (reviewId, responseId) =>
   unwrap(api.delete(`/seller/reviews/${reviewId}/respond/${responseId}`));
+
+
 

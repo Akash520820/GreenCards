@@ -10,7 +10,9 @@ import {
   MdShoppingCart, 
   MdAccountCircle,
   MdLogout,
-  MdAdminPanelSettings
+  MdAdminPanelSettings,
+  MdHowToReg,
+  MdFlag
 } from 'react-icons/md';
 import './AdminMobileNavbar.css';
 
@@ -77,7 +79,25 @@ const AdminMobileNavbar = () => {
             </div>
             
             <div className="admin-account-divider"></div>
-            
+
+            <Link
+              to="/admin/seller-applications"
+              className="admin-account-menu-item"
+              onClick={() => setShowAccountMenu(false)}
+            >
+              <MdHowToReg className="admin-account-menu-icon" />
+              <span>Seller Applications</span>
+            </Link>
+
+            <Link
+              to="/admin/reported-reviews"
+              className="admin-account-menu-item"
+              onClick={() => setShowAccountMenu(false)}
+            >
+              <MdFlag className="admin-account-menu-icon" />
+              <span>Reported Reviews</span>
+            </Link>
+
             {isSuperAdmin && (
               <Link
                 to="/admin/superadmin"
