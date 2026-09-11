@@ -1,9 +1,34 @@
 import React from "react";
 import "./Footer.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 import { assets } from "../../assets/assets";
 
+const ComingSoonLink = ({ children }) => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    toast("Coming soon!", { icon: "🚧" });
+  };
+  return (
+    <a href="#" className="footer-link" onClick={handleClick}>
+      {children}
+    </a>
+  );
+};
+
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToBestSellers = (e) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      document.getElementById("bestsellers")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/#bestsellers");
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="container py-4">
@@ -31,29 +56,27 @@ const Footer = () => {
               <h5 className="footer-heading mb-3">Quick Links</h5>
               <ul className="list-unstyled">
                 <li>
-                  <a href="#home" className="footer-link">
+                  <Link to="/" className="footer-link">
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#bestsellers" className="footer-link">
+                  <a href="#bestsellers" className="footer-link" onClick={scrollToBestSellers}>
                     Best Sellers
                   </a>
                 </li>
                 <li>
-                  <a href="#offers" className="footer-link">
+                  <Link to="/flash-sale" className="footer-link">
                     Offers & Deals
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#contact" className="footer-link">
+                  <Link to="/contact" className="footer-link">
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#faqs" className="footer-link">
-                    FAQs
-                  </a>
+                  <ComingSoonLink>FAQs</ComingSoonLink>
                 </li>
               </ul>
             </div>
@@ -65,29 +88,23 @@ const Footer = () => {
               <h5 className="footer-heading mb-3">Need help?</h5>
               <ul className="list-unstyled">
                 <li>
-                  <a href="#delivery" className="footer-link">
-                    Delivery Information
-                  </a>
+                  <ComingSoonLink>Delivery Information</ComingSoonLink>
                 </li>
                 <li>
-                  <a href="#return" className="footer-link">
-                    Return & Refund Policy
-                  </a>
+                  <ComingSoonLink>Return & Refund Policy</ComingSoonLink>
                 </li>
                 <li>
-                  <a href="#payment" className="footer-link">
-                    Payment Methods
-                  </a>
+                  <ComingSoonLink>Payment Methods</ComingSoonLink>
                 </li>
                 <li>
-                  <a href="#track" className="footer-link">
+                  <Link to="/my-orders" className="footer-link">
                     Track your Order
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#contact-us" className="footer-link">
+                  <Link to="/contact" className="footer-link">
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
