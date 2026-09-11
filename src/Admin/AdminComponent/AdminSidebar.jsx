@@ -14,7 +14,8 @@ import {
   FiBarChart2,
   FiShield,
   FiUserCheck,
-  FiFlag
+  FiFlag,
+  FiFileText
 } from 'react-icons/fi';
 
 import './AdminSidebar.css';
@@ -194,6 +195,14 @@ const AdminSidebar = () => {
         >
           <FiFlag className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Reported Reviews</span>
+        </Link>
+
+        <Link
+          to="/admin/site-content"
+          className={`sidebar-nav-link ${isActive('/admin/site-content') ? 'sidebar-nav-link-active' : ''}`}
+        >
+          <FiFileText className="sidebar-nav-icon" />
+          <span className="sidebar-nav-text">Site Content</span>
         </Link>
 
         {isSuperAdmin && (

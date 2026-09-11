@@ -10,6 +10,45 @@
 }
 
 /* ========================================
+   AUTH / LOADING STATE (guest prompt & orders fetch)
+======================================== */
+.orders-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 50vh;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 60px 20px;
+}
+
+.orders-loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #4CAF50;
+  border-radius: 50%;
+  animation: orders-spin 0.8s linear infinite;
+}
+
+.orders-loading p {
+  color: #718096;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+@keyframes orders-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
    ORDERS HEADER
 ======================================== */
 .orders-header {
@@ -306,6 +345,65 @@
 
 .cancel-order-btn:hover {
   background: #fff5f5;
+}
+
+/* ========================================
+   MODAL OVERLAY (shared by Order Details & Return Request modals)
+   These classes were referenced in the JSX but had no styles anywhere
+   in the project, so both modals were rendering inline in the page flow
+   instead of as a proper centered, dimmed overlay.
+======================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  z-index: 1;
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: #f7fafc;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #718096;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #fed7d7;
+  color: #e53e3e;
 }
 
 /* ========================================

@@ -12,7 +12,8 @@ import {
   MdLogout,
   MdAdminPanelSettings,
   MdHowToReg,
-  MdFlag
+  MdFlag,
+  MdArticle
 } from 'react-icons/md';
 import './AdminMobileNavbar.css';
 
@@ -96,6 +97,15 @@ const AdminMobileNavbar = () => {
             >
               <MdFlag className="admin-account-menu-icon" />
               <span>Reported Reviews</span>
+            </Link>
+
+            <Link
+              to="/admin/site-content"
+              className="admin-account-menu-item"
+              onClick={() => setShowAccountMenu(false)}
+            >
+              <MdArticle className="admin-account-menu-icon" />
+              <span>Site Content</span>
             </Link>
 
             {isSuperAdmin && (

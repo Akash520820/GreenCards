@@ -5,6 +5,7 @@ import { useClientAuth } from '../../context/ClientAuthContext';
 import { useOrders } from '../../context/OrderContext';
 import { downloadOrderInvoice } from '../../api/orders.api';
 import * as returnsApi from '../../api/returns.api';
+import AuthModal from '../ClientsComponent/LogInSignIn/AuthModal';
 import './MyOrders.css';
 
 const STATUS_FILTERS = ['All', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -17,6 +18,7 @@ const MyOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState('All');
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Return Request Modal State
   const [returnOrder, setReturnOrder] = useState(null);
@@ -27,13 +29,23 @@ const MyOrders = () => {
     fetchUserOrders();
   }, [fetchUserOrders]);
 
+  // Instead of silently bouncing guests back to Home (which just looked like
+  // a broken link from the footer), prompt them to log in and bring them
+  // straight back to /my-orders once they do.
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/');
+      setShowAuthModal(true);
       return;
     }
     loadOrders();
-  }, [isAuthenticated, navigate, loadOrders]);
+  }, [isAuthenticated, loadOrders]);
+
+  const handleCloseAuthModal = useCallback(() => {
+    setShowAuthModal(false);
+    if (!isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const getStatusColor = (status) => {
     const colors = {
@@ -58,6 +70,11 @@ const MyOrders = () => {
   const handleViewDetails = (order) => {
     setSelectedOrder(order);
     setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedOrder(null);
   };
 
   const handleProductClick = (productId, e) => {
@@ -89,7 +106,19 @@ const MyOrders = () => {
       ? orders
       : orders.filter((order) => order.orderStatus === filterStatus);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated) {
+    return (
+      <div className="my-orders-page">
+        <AuthModal show={showAuthModal} onClose={handleCloseAuthModal} redirectTo="/my-orders" />
+        <div className="container">
+          <div className="orders-loading">
+            <div className="spinner"></div>
+            <p>Please login to view your orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (ordersLoading) {
     return (
@@ -217,6 +246,139 @@ const MyOrders = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Order Details Modal */}
+        {showDetailsModal && selectedOrder && (
+          <div className="modal-overlay" onClick={handleCloseDetails}>
+            <div className="order-details-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Order #{selectedOrder._id.slice(-8).toUpperCase()}</h2>
+                <button className="modal-close-btn" onClick={handleCloseDetails} aria-label="Close">
+                  ×
+                </button>
+              </div>
+
+              <div className="modal-body">
+                {/* Order Info */}
+                <div className="details-section">
+                  <div className="section-title-row">
+                    <h3>Order Information</h3>
+                    <span
+                      className="order-status-badge"
+                      style={{
+                        backgroundColor: `${getStatusColor(selectedOrder.orderStatus)}20`,
+                        color: getStatusColor(selectedOrder.orderStatus),
+                      }}
+                    >
+                      {selectedOrder.orderStatus}
+                    </span>
+                  </div>
+                  <div className="details-grid">
+                    <div className="detail-item">
+                      <span className="detail-label">Placed On</span>
+                      <span className="detail-value">{formatDate(selectedOrder.createdAt)}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Payment Method</span>
+                      <span className="detail-value">{selectedOrder.paymentMethod?.toUpperCase()}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Payment Status</span>
+                      <span className="detail-value" style={{ textTransform: 'capitalize' }}>
+                        {selectedOrder.paymentStatus || '—'}
+                      </span>
+                    </div>
+                    {selectedOrder.deliveredAt && (
+                      <div className="detail-item">
+                        <span className="detail-label">Delivered On</span>
+                        <span className="detail-value">{formatDate(selectedOrder.deliveredAt)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shipping Address */}
+                {selectedOrder.shippingAddress && (
+                  <div className="details-section">
+                    <h3>Shipping Address</h3>
+                    <div className="address-box">
+                      <strong>{selectedOrder.shippingAddress.fullName}</strong>
+                      <br />
+                      {selectedOrder.shippingAddress.addressLine1}
+                      {selectedOrder.shippingAddress.addressLine2 && (
+                        <>, {selectedOrder.shippingAddress.addressLine2}</>
+                      )}
+                      <br />
+                      {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{' '}
+                      {selectedOrder.shippingAddress.pincode}
+                      <br />
+                      {selectedOrder.shippingAddress.country}
+                      <br />
+                      Phone: {selectedOrder.shippingAddress.phone}
+                    </div>
+                  </div>
+                )}
+
+                {/* Items */}
+                <div className="details-section">
+                  <h3>Items ({selectedOrder.items.length})</h3>
+                  <div className="order-items-list">
+                    {selectedOrder.items.map((item, index) => (
+                      <div
+                        key={index}
+                        className="order-detail-item"
+                        onClick={() => handleProductClick(item.product)}
+                        style={{ cursor: item.product ? 'pointer' : 'default' }}
+                      >
+                        <img className="item-image" src={item.image} alt={item.name} />
+                        <div className="item-details">
+                          <h4>{item.name}</h4>
+                          {(item.variant?.size || item.variant?.color) && (
+                            <p className="item-category">
+                              {[item.variant?.size, item.variant?.color].filter(Boolean).join(' · ')}
+                            </p>
+                          )}
+                          <p className="item-quantity">Qty: {item.quantity}</p>
+                        </div>
+                        <span className="item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="details-section">
+                  <h3>Price Breakdown</h3>
+                  <div className="price-breakdown">
+                    <div className="price-row">
+                      <span>Items Total</span>
+                      <span>₹{selectedOrder.itemsPrice?.toFixed(2)}</span>
+                    </div>
+                    <div className="price-row">
+                      <span>Shipping</span>
+                      <span className={selectedOrder.shippingPrice === 0 ? 'free-text' : ''}>
+                        {selectedOrder.shippingPrice === 0
+                          ? 'Free'
+                          : `₹${selectedOrder.shippingPrice?.toFixed(2)}`}
+                      </span>
+                    </div>
+                    {selectedOrder.discountAmount > 0 && (
+                      <div className="price-row">
+                        <span>Discount {selectedOrder.couponCode ? `(${selectedOrder.couponCode})` : ''}</span>
+                        <span className="free-text">-₹{selectedOrder.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="price-divider"></div>
+                    <div className="price-row total-row">
+                      <span>Total</span>
+                      <span>₹{selectedOrder.totalPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
