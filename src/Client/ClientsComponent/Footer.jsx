@@ -1,20 +1,7 @@
 import React from "react";
 import "./Footer.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import toast from "react-hot-toast";
 import { assets } from "../../assets/assets";
-
-const ComingSoonLink = ({ children }) => {
-  const handleClick = (e) => {
-    e.preventDefault();
-    toast("Coming soon!", { icon: "🚧" });
-  };
-  return (
-    <a href="#" className="footer-link" onClick={handleClick}>
-      {children}
-    </a>
-  );
-};
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -76,7 +63,9 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <ComingSoonLink>FAQs</ComingSoonLink>
+                  <Link to="/faqs" className="footer-link">
+                    FAQs
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -88,13 +77,19 @@ const Footer = () => {
               <h5 className="footer-heading mb-3">Need help?</h5>
               <ul className="list-unstyled">
                 <li>
-                  <ComingSoonLink>Delivery Information</ComingSoonLink>
+                  <Link to="/delivery-information" className="footer-link">
+                    Delivery Information
+                  </Link>
                 </li>
                 <li>
-                  <ComingSoonLink>Return & Refund Policy</ComingSoonLink>
+                  <Link to="/return-refund-policy" className="footer-link">
+                    Return & Refund Policy
+                  </Link>
                 </li>
                 <li>
-                  <ComingSoonLink>Payment Methods</ComingSoonLink>
+                  <Link to="/payment-methods" className="footer-link">
+                    Payment Methods
+                  </Link>
                 </li>
                 <li>
                   <Link to="/my-orders" className="footer-link">

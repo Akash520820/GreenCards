@@ -20,6 +20,10 @@ import MyOrders from './Client/ClientPages/MyOrders';
 import Cart from './Client/ClientPages/Cart';
 import Contact from './Client/ClientPages/Contact';
 import BecomeSeller from './Client/ClientPages/BecomeSeller';
+import FAQs from './Client/ClientPages/FAQs';
+import DeliveryInformation from './Client/ClientPages/DeliveryInformation';
+import ReturnRefundPolicy from './Client/ClientPages/ReturnRefundPolicy';
+import PaymentMethods from './Client/ClientPages/PaymentMethods';
 
 // Seller Layout & Pages (role === "seller" only)
 import SellerAppLayout from './Seller/SellerComponent/Layout/SellerAppLayout';
@@ -65,6 +69,10 @@ const router = createBrowserRouter([
       { path: "/wishlist", element: <Wishlist /> },
       { path: "/contact", element: <Contact /> },
       { path: "/become-seller", element: <BecomeSeller /> },
+      { path: "/faqs", element: <FAQs /> },
+      { path: "/delivery-information", element: <DeliveryInformation /> },
+      { path: "/return-refund-policy", element: <ReturnRefundPolicy /> },
+      { path: "/payment-methods", element: <PaymentMethods /> },
     ],
   },
 
