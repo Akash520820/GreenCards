@@ -57,6 +57,38 @@
   margin-bottom: 28px;
 }
 
+.contact-info-loading {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+}
+
+.contact-info-loading .spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #4CAF50;
+  border-radius: 50%;
+  animation: contact-info-spin 0.8s linear infinite;
+}
+
+@keyframes contact-info-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.contact-info-empty {
+  color: #718096;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  background: #f7fafc;
+  border: 1px dashed #cbd5e0;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 0;
+}
+
 .contact-info-list {
   display: flex;
   flex-direction: column;
