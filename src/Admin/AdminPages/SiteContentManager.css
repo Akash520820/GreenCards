@@ -97,6 +97,52 @@
   color: #2d3748;
 }
 
+.scm-hint {
+  color: #718096;
+  font-size: 0.86rem;
+  margin: 0 0 4px 0;
+}
+
+.scm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.scm-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scm-form-field input {
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  color: #2d3748;
+  font-family: inherit;
+  width: 100%;
+}
+
+.scm-form-field input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+}
+
+.scm-label-sub {
+  font-weight: 500;
+  color: #718096;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 620px) {
+  .scm-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .scm-card {
   border: 1px solid #e2e8f0;
   border-radius: 10px;

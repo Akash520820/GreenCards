@@ -1,16 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from "react-icons/fi";
 import { FaInstagram, FaTwitter, FaFacebookF, FaYoutube } from "react-icons/fa";
 import { submitContactMessage } from "../../api/contact.api";
+import { getSiteContent } from "../../api/siteContent.api";
 import "./Contact.css";
 
 const INITIAL_FORM = { name: "", email: "", subject: "", message: "" };
+
+// Shown until the real data loads (and if it's ever missing a field) so the
+// page never renders blank — actual values come from the admin-managed
+// SiteContent document (Admin → Site Content → Contact Info).
+const FALLBACK_INFO = {
+  email: "support@greencards.com",
+  phone: "+91 98765 43210",
+  address: "GreenCards HQ, Sector 21, Gurugram, Haryana, India",
+  supportHours: "Mon – Sat, 9:00 AM – 8:00 PM",
+  socialLinks: { instagram: "", twitter: "", facebook: "", youtube: "" },
+};
 
 const Contact = () => {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [contactInfo, setContactInfo] = useState(FALLBACK_INFO);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const data = await getSiteContent();
+        if (isMounted && data?.contactInfo) {
+          setContactInfo({
+            ...FALLBACK_INFO,
+            ...data.contactInfo,
+            socialLinks: { ...FALLBACK_INFO.socialLinks, ...(data.contactInfo.socialLinks || {}) },
+          });
+        }
+      } catch {
+        // Keep the fallback info — a failed fetch shouldn't block the page.
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +105,7 @@ const Contact = () => {
                 </span>
                 <div>
                   <h4>Email</h4>
-                  <p>support@greencards.com</p>
+                  <p>{contactInfo.email}</p>
                 </div>
               </div>
 
@@ -81,7 +115,7 @@ const Contact = () => {
                 </span>
                 <div>
                   <h4>Phone</h4>
-                  <p>+91 98765 43210</p>
+                  <p>{contactInfo.phone}</p>
                 </div>
               </div>
 
@@ -91,7 +125,7 @@ const Contact = () => {
                 </span>
                 <div>
                   <h4>Address</h4>
-                  <p>GreenCards HQ, Sector 21, Gurugram, Haryana, India</p>
+                  <p>{contactInfo.address}</p>
                 </div>
               </div>
 
@@ -101,28 +135,41 @@ const Contact = () => {
                 </span>
                 <div>
                   <h4>Support Hours</h4>
-                  <p>Mon – Sat, 9:00 AM – 8:00 PM</p>
+                  <p>{contactInfo.supportHours}</p>
                 </div>
               </div>
             </div>
 
-            <div className="contact-social">
-              <h4>Follow Us</h4>
-              <div className="contact-social-icons">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <FaInstagram />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                  <FaTwitter />
-                </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <FaFacebookF />
-                </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                  <FaYoutube />
-                </a>
+            {(contactInfo.socialLinks?.instagram ||
+              contactInfo.socialLinks?.twitter ||
+              contactInfo.socialLinks?.facebook ||
+              contactInfo.socialLinks?.youtube) && (
+              <div className="contact-social">
+                <h4>Follow Us</h4>
+                <div className="contact-social-icons">
+                  {contactInfo.socialLinks?.instagram && (
+                    <a href={contactInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                      <FaInstagram />
+                    </a>
+                  )}
+                  {contactInfo.socialLinks?.twitter && (
+                    <a href={contactInfo.socialLinks.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                      <FaTwitter />
+                    </a>
+                  )}
+                  {contactInfo.socialLinks?.facebook && (
+                    <a href={contactInfo.socialLinks.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                      <FaFacebookF />
+                    </a>
+                  )}
+                  {contactInfo.socialLinks?.youtube && (
+                    <a href={contactInfo.socialLinks.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                      <FaYoutube />
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Form panel */}

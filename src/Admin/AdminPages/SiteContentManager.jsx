@@ -13,6 +13,7 @@ import * as contactApi from '../../api/contact.api';
 import './SiteContentManager.css';
 
 const TABS = [
+  { key: 'contactInfo', label: 'Contact Info' },
   { key: 'faqs', label: 'FAQs' },
   { key: 'deliveryInformation', label: 'Delivery Information' },
   { key: 'returnRefundPolicy', label: 'Return & Refund Policy' },
@@ -20,12 +21,21 @@ const TABS = [
   { key: 'messages', label: 'Contact Messages' },
 ];
 
+const EMPTY_CONTACT_INFO = {
+  email: '',
+  phone: '',
+  address: '',
+  supportHours: '',
+  socialLinks: { instagram: '', twitter: '', facebook: '', youtube: '' },
+};
+
 const SiteContentManager = () => {
-  const [tab, setTab] = useState('faqs');
+  const [tab, setTab] = useState('contactInfo');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const [contactInfo, setContactInfo] = useState(EMPTY_CONTACT_INFO);
   const [faqs, setFaqs] = useState([]);
   const [deliveryInformation, setDeliveryInformation] = useState('');
   const [returnRefundPolicy, setReturnRefundPolicy] = useState('');
@@ -40,6 +50,11 @@ const SiteContentManager = () => {
     setError('');
     try {
       const data = await getSiteContent();
+      setContactInfo({
+        ...EMPTY_CONTACT_INFO,
+        ...(data?.contactInfo || {}),
+        socialLinks: { ...EMPTY_CONTACT_INFO.socialLinks, ...(data?.contactInfo?.socialLinks || {}) },
+      });
       setFaqs(data?.faqs || []);
       setDeliveryInformation(data?.deliveryInformation || '');
       setReturnRefundPolicy(data?.returnRefundPolicy || '');
@@ -82,6 +97,17 @@ const SiteContentManager = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  // ---- Contact Info ----
+  const updateContactField = (field, value) => {
+    setContactInfo((prev) => ({ ...prev, [field]: value }));
+  };
+  const updateSocialLink = (platform, value) => {
+    setContactInfo((prev) => ({ ...prev, socialLinks: { ...prev.socialLinks, [platform]: value } }));
+  };
+  const saveContactInfo = () => {
+    handleSave({ contactInfo }, 'Contact info saved');
   };
 
   // ---- FAQs ----
@@ -143,6 +169,103 @@ const SiteContentManager = () => {
       </div>
 
       {error && <p className="scm-error">{error}</p>}
+
+      {/* Contact Info */}
+      {tab === 'contactInfo' && (
+        <div className="scm-panel">
+          <p className="scm-hint">
+            This powers the "Get in touch" panel on the public Contact page.
+          </p>
+          <div className="scm-form-grid">
+            <div className="scm-form-field">
+              <label className="scm-label">Email</label>
+              <input
+                type="email"
+                placeholder="support@greencards.com"
+                value={contactInfo.email}
+                onChange={(e) => updateContactField('email', e.target.value)}
+              />
+            </div>
+            <div className="scm-form-field">
+              <label className="scm-label">Phone</label>
+              <input
+                type="text"
+                placeholder="+91 98765 43210"
+                value={contactInfo.phone}
+                onChange={(e) => updateContactField('phone', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="scm-form-field">
+            <label className="scm-label">Address</label>
+            <input
+              type="text"
+              placeholder="GreenCards HQ, Sector 21, Gurugram, Haryana, India"
+              value={contactInfo.address}
+              onChange={(e) => updateContactField('address', e.target.value)}
+            />
+          </div>
+
+          <div className="scm-form-field">
+            <label className="scm-label">Support Hours</label>
+            <input
+              type="text"
+              placeholder="Mon – Sat, 9:00 AM – 8:00 PM"
+              value={contactInfo.supportHours}
+              onChange={(e) => updateContactField('supportHours', e.target.value)}
+            />
+          </div>
+
+          <label className="scm-label" style={{ marginTop: 8 }}>
+            Social Links (leave blank to hide that icon)
+          </label>
+          <div className="scm-form-grid">
+            <div className="scm-form-field">
+              <label className="scm-label scm-label-sub">Instagram URL</label>
+              <input
+                type="text"
+                placeholder="https://instagram.com/yourhandle"
+                value={contactInfo.socialLinks.instagram}
+                onChange={(e) => updateSocialLink('instagram', e.target.value)}
+              />
+            </div>
+            <div className="scm-form-field">
+              <label className="scm-label scm-label-sub">Twitter / X URL</label>
+              <input
+                type="text"
+                placeholder="https://twitter.com/yourhandle"
+                value={contactInfo.socialLinks.twitter}
+                onChange={(e) => updateSocialLink('twitter', e.target.value)}
+              />
+            </div>
+            <div className="scm-form-field">
+              <label className="scm-label scm-label-sub">Facebook URL</label>
+              <input
+                type="text"
+                placeholder="https://facebook.com/yourpage"
+                value={contactInfo.socialLinks.facebook}
+                onChange={(e) => updateSocialLink('facebook', e.target.value)}
+              />
+            </div>
+            <div className="scm-form-field">
+              <label className="scm-label scm-label-sub">YouTube URL</label>
+              <input
+                type="text"
+                placeholder="https://youtube.com/@yourchannel"
+                value={contactInfo.socialLinks.youtube}
+                onChange={(e) => updateSocialLink('youtube', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="scm-actions">
+            <button className="scm-btn scm-btn-primary" onClick={saveContactInfo} disabled={saving}>
+              <FiSave /> {saving ? 'Saving…' : 'Save Contact Info'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FAQs */}
       {tab === 'faqs' && (

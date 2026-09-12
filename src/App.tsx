@@ -44,6 +44,7 @@ import ManageInventory from './Admin/AdminPages/ManageInventory';
 import SalesAnalytics from './Admin/AdminPages/SalesAnalytics';
 import SellerApplications from './Admin/AdminPages/SellerApplications';
 import ReviewModeration from './Admin/AdminPages/ReviewModeration';
+import SiteContentManager from './Admin/AdminPages/SiteContentManager';
 import SuperAdminDashboard from './Admin/AdminPages/SuperAdminDashboard';
 import AdminAuthPage from './Admin/AdminPages/AdminAuthPage';
 import ProtectedAdminRoute from './Admin/AdminComponent/ProtectedAdminRoute';
@@ -126,6 +127,7 @@ const router = createBrowserRouter([
       { path: "/admin/analytics", element: <SalesAnalytics /> },
       { path: "/admin/seller-applications", element: <SellerApplications /> },
       { path: "/admin/reported-reviews", element: <ReviewModeration /> },
+      { path: "/admin/site-content", element: <SiteContentManager /> },
       {
         path: "/admin/superadmin",
         element: (
