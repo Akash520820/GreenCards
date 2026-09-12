@@ -27,5 +27,5 @@ export const getCurrentUser = () => unwrap(api.get("/users/current-user"));
 export const forgotPassword = (email) =>
   unwrap(api.post("/users/forgot-password", { email }));
 
-export const resetPassword = (token, password) =>
-  unwrap(api.post("/users/reset-password", { token, password }));
+export const resetPassword = (email, otp, newPassword) =>
+  unwrap(api.post("/users/reset-password", { email, otp, newPassword }));

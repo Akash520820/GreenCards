@@ -6,7 +6,7 @@ import { useClientAuth } from '../../../context/ClientAuthContext';
 import { compressImage } from '../../../utils/compressImage';
 
 const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingProduct }) => {
-  const { login, register, verifyOtp, resendOtp } = useClientAuth();
+  const { login, register, verifyOtp, resendOtp, forgotPassword, resetPassword } = useClientAuth();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -25,6 +25,14 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
   const [awaitingOtp, setAwaitingOtp] = useState(false);
   const [otp, setOtp] = useState('');
   const [pendingEmail, setPendingEmail] = useState('');
+
+  // Forgot password flow: 'closed' -> 'email' (request code) -> 'reset' (enter code + new password)
+  const [forgotStep, setForgotStep] = useState('closed');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [resetOtp, setResetOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -60,6 +68,56 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
     setAvatarPreview(null);
     setAwaitingOtp(false);
     setOtp('');
+    setForgotStep('closed');
+    setForgotEmail('');
+    setResetOtp('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
+
+  const handleRequestResetCode = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    try {
+      const result = await forgotPassword(forgotEmail);
+      if (!result.success) {
+        toast.error(result.error || 'Failed to send reset code');
+        return;
+      }
+      toast.success(result.message || 'If an account exists, a reset code has been sent.');
+      setForgotStep('reset');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResendResetCode = async () => {
+    const result = await forgotPassword(forgotEmail);
+    if (result.success) {
+      toast.success('Reset code resent!');
+    } else {
+      toast.error(result.error || 'Failed to resend reset code');
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const result = await resetPassword(forgotEmail, resetOtp, newPassword);
+      if (!result.success) {
+        toast.error(result.error || 'Failed to reset password');
+        return;
+      }
+      toast.success(result.message || 'Password reset successfully. Please log in.');
+      resetForm();
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -145,6 +203,142 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
       toast.error(result.error || 'Failed to resend OTP');
     }
   };
+
+  if (forgotStep === 'email') {
+    return (
+      <form onSubmit={handleRequestResetCode}>
+        <div style={{
+          padding: '0.75rem',
+          marginBottom: '1rem',
+          backgroundColor: '#e7f5ec',
+          borderRadius: '8px',
+          border: '1px solid #4CAF50',
+          fontSize: '0.85rem',
+          color: '#2E7D32',
+          textAlign: 'center'
+        }}>
+          Enter your email and we'll send you a reset code
+        </div>
+
+        <FormInput
+          label="Email"
+          type="email"
+          name="forgotEmail"
+          value={forgotEmail}
+          onChange={(e) => setForgotEmail(e.target.value)}
+          placeholder="type here"
+          autoComplete="email"
+          inputMode="email"
+        />
+
+        <button type="submit" className="auth-form-submit-btn" disabled={forgotLoading}>
+          {forgotLoading ? 'Sending…' : 'Send Reset Code'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setForgotStep('closed')}
+          style={{
+            width: '100%',
+            marginTop: '0.5rem',
+            background: 'none',
+            border: 'none',
+            color: '#4CAF50',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Back to Login
+        </button>
+      </form>
+    );
+  }
+
+  if (forgotStep === 'reset') {
+    return (
+      <form onSubmit={handleResetPassword}>
+        <div style={{
+          padding: '0.75rem',
+          marginBottom: '1rem',
+          backgroundColor: '#e7f5ec',
+          borderRadius: '8px',
+          border: '1px solid #4CAF50',
+          fontSize: '0.85rem',
+          color: '#2E7D32',
+          textAlign: 'center'
+        }}>
+          Enter the code sent to {forgotEmail}
+        </div>
+
+        <FormInput
+          label="Reset Code"
+          type="text"
+          name="resetOtp"
+          value={resetOtp}
+          onChange={(e) => setResetOtp(e.target.value)}
+          placeholder="6-digit code"
+          autoComplete="one-time-code"
+          inputMode="numeric"
+        />
+
+        <FormInput
+          label="New Password"
+          type="password"
+          name="newPassword"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="type here"
+          autoComplete="new-password"
+        />
+
+        <FormInput
+          label="Confirm New Password"
+          type="password"
+          name="confirmNewPassword"
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+          placeholder="type here"
+          autoComplete="new-password"
+        />
+
+        <button type="submit" className="auth-form-submit-btn" disabled={forgotLoading}>
+          {forgotLoading ? 'Resetting…' : 'Reset Password'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleResendResetCode}
+          style={{
+            width: '100%',
+            marginTop: '0.5rem',
+            background: 'none',
+            border: 'none',
+            color: '#4CAF50',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Resend Code
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setForgotStep('closed')}
+          style={{
+            width: '100%',
+            marginTop: '0.25rem',
+            background: 'none',
+            border: 'none',
+            color: '#718096',
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
+        >
+          Back to Login
+        </button>
+      </form>
+    );
+  }
 
   if (awaitingOtp) {
     return (
@@ -285,6 +479,29 @@ const AuthForm = ({ isLogin, onToggleMode, onClose, onAuthSuccess, hasPendingPro
         placeholder="type here"
         autoComplete={isLogin ? 'current-password' : 'new-password'}
       />
+
+      {isLogin && (
+        <div style={{ textAlign: 'right', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+          <button
+            type="button"
+            onClick={() => {
+              setForgotEmail(formData.email);
+              setForgotStep('email');
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#4CAF50',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            Forgot password?
+          </button>
+        </div>
+      )}
 
       {!isLogin && (
         <div className="auth-form-avatar-row">

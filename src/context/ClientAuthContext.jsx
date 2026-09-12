@@ -104,9 +104,9 @@ export const ClientAuthProvider = ({ children }) => {
     }
   };
 
-  const resetPassword = async (token, password) => {
+  const resetPassword = async (email, otp, newPassword) => {
     try {
-      const res = await authApi.resetPassword(token, password);
+      const res = await authApi.resetPassword(email, otp, newPassword);
       return { success: true, message: res.message };
     } catch (err) {
       return { success: false, error: err.message };
