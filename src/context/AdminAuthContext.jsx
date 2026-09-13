@@ -1,14 +1,15 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import * as authApi from '../api/auth.api';
+import * as staffApi from '../api/staff.api';
 
 const AdminAuthContext = createContext();
 
 // This is the login for STAFF accounts — role "admin" or "superadmin".
-// It has nothing to do with the "seller" role; sellers have their own
-// SellerAuthContext. Admin accounts can't be self-registered — a
-// superadmin has to promote an existing user via
-// PATCH /api/v1/superadmin/users/:userId/role — so signup is intentionally
-// left disabled below.
+// Staff now live in a completely separate collection/cookie/JWT secret
+// from customers and sellers (see ecommerce-backend's staff.model.js) —
+// this context talks to staff.api.js, never auth.api.js. There is no
+// self-service admin signup: a staff account can only come from an
+// approved access request (see /admin/superadmin's Access Requests tab)
+// or the one-off bootstrap script for the very first superadmin.
 
 export const AdminAuthProvider = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -18,11 +19,9 @@ export const AdminAuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await authApi.getCurrentUser();
-        if (res.data.role === 'admin' || res.data.role === 'superadmin') {
-          setAdmin(res.data);
-          setIsAdminAuthenticated(true);
-        }
+        const res = await staffApi.getCurrentStaff();
+        setAdmin(res.data);
+        setIsAdminAuthenticated(true);
       } catch {
         // not logged in — fine, just stay logged out
       } finally {
@@ -32,43 +31,50 @@ export const AdminAuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const adminLogin = async (email, password) => {
+  // Step 1: password login. If the account has MFA enabled, this does NOT
+  // log the admin in — it returns { mfaRequired: true, staffId } so the
+  // login page can show the "enter your code" screen and call
+  // adminVerifyMfa next.
+  const adminLogin = async (companyEmail, password) => {
     try {
-      const isEmail = email.includes('@');
-      const res = await authApi.loginUser({
-        email: isEmail ? email : undefined,
-        userName: isEmail ? undefined : email,
-        password,
-      });
+      const res = await staffApi.loginStaff(companyEmail, password);
 
-      const loggedInUser = res.data.user;
-      if (loggedInUser.role !== 'admin' && loggedInUser.role !== 'superadmin') {
-        return {
-          success: false,
-          error: 'This account does not have admin access. Ask a super admin to grant it.',
-        };
+      if (res.data.mfaRequired) {
+        return { success: true, mfaRequired: true, staffId: res.data.staffId };
       }
 
-      setAdmin(loggedInUser);
+      setAdmin(res.data.staff);
       setIsAdminAuthenticated(true);
-      return { success: true, admin: loggedInUser };
+      return { success: true, admin: res.data.staff };
     } catch (err) {
       return { success: false, error: err.message || 'Login failed. Please try again.' };
     }
   };
 
-  // Admin accounts can only be granted by a super admin — see note above.
+  // Step 2, only reached when adminLogin returned mfaRequired: true
+  const adminVerifyMfa = async (staffId, code) => {
+    try {
+      const res = await staffApi.verifyMfaLogin(staffId, code);
+      setAdmin(res.data.staff);
+      setIsAdminAuthenticated(true);
+      return { success: true, admin: res.data.staff };
+    } catch (err) {
+      return { success: false, error: err.message || 'Invalid or expired code.' };
+    }
+  };
+
+  // Self-service admin signup is intentionally unavailable — see note above.
   const adminSignup = async () => {
     return {
       success: false,
       error:
-        'Self-service admin signup is not available. Create a regular account from the storefront, then have a super admin grant it admin access.',
+        'Self-service admin signup is not available. An existing staff member with staff-management permission must submit an access request, which a super admin then approves.',
     };
   };
 
   const adminLogout = async () => {
     try {
-      await authApi.logoutUser();
+      await staffApi.logoutStaff();
     } catch {
       // clear local state regardless
     }
@@ -81,6 +87,7 @@ export const AdminAuthProvider = ({ children }) => {
     admin,
     loading,
     adminLogin,
+    adminVerifyMfa,
     adminSignup,
     adminLogout,
   };

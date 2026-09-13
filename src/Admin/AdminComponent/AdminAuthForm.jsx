@@ -12,14 +12,14 @@ const AdminAuthForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <div className="auth-form-input-group">
-        <label htmlFor="email">Email or Username</label>
+        <label htmlFor="email">Company Email</label>
         <input
           id="email"
-          type="text"
+          type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="Enter your email or username"
+          placeholder="you@yourcompany.com"
           className="auth-form-input"
           required
         />

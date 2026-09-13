@@ -19,14 +19,18 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isStaffRequest = originalRequest.url?.startsWith("/staff") || originalRequest.url?.startsWith("/admin") || originalRequest.url?.startsWith("/superadmin");
+    const refreshEndpoint = isStaffRequest ? "/staff/refresh-token" : "/users/refresh-token";
 
-    // Do not trigger refresh token loops for guest status checks or login endpoints
+    // Do not trigger refresh token loops for guest status checks, login
+    // endpoints, or the refresh call itself (either flavor)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes("/users/login") &&
-      !originalRequest.url?.includes("/users/current-user") &&
-      !originalRequest.url?.includes("/users/refresh-token")
+      !originalRequest.url?.includes("/login") &&
+      !originalRequest.url?.includes("/current-user") &&
+      !originalRequest.url?.includes("/current-staff") &&
+      !originalRequest.url?.includes("/refresh-token")
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -40,7 +44,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post("/users/refresh-token");
+        await api.post(refreshEndpoint);
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {

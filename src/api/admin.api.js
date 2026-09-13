@@ -6,8 +6,10 @@ export const getDashboardStats = () => unwrap(api.get("/admin/stats"));
 // { page, limit } — returns { users, pagination }
 export const getAllUsers = (params = {}) => unwrap(api.get("/admin/users", { params }));
 
-export const updateUserRole = (userId, role) =>
-  unwrap(api.patch(`/admin/users/${userId}/role`, { role }));
+// Activates/deactivates a customer or seller account — never a staff
+// account (that's staffApi.toggleStaffActive, a completely separate system)
+export const toggleCustomerActive = (userId) =>
+  unwrap(api.patch(`/admin/users/${userId}/toggle-active`));
 
 // ---- Seller application workflow (admin.controller.js) ----
 
@@ -46,10 +48,5 @@ export const unhideReview = (reviewId) => unwrap(api.patch(`/admin/reviews/${rev
 // superadmin only
 export const getFullDashboard = () => unwrap(api.get("/superadmin/dashboard"));
 
-export const getAllAdmins = () => unwrap(api.get("/superadmin/admins"));
-
-export const updateAdminRole = (userId, role) =>
-  unwrap(api.patch(`/superadmin/users/${userId}/role`, { role }));
-
-export const toggleUserActive = (userId) =>
-  unwrap(api.patch(`/superadmin/users/${userId}/toggle-active`));
+// Staff account management (list/create/promote/deactivate/permissions,
+// MFA, audit logs) now lives entirely in staff.api.js — see that file.

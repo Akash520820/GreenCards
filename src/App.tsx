@@ -46,12 +46,14 @@ import SellerApplications from './Admin/AdminPages/SellerApplications';
 import ReviewModeration from './Admin/AdminPages/ReviewModeration';
 import SiteContentManager from './Admin/AdminPages/SiteContentManager';
 import SuperAdminDashboard from './Admin/AdminPages/SuperAdminDashboard';
+import AdminSecuritySettings from './Admin/AdminPages/AdminSecuritySettings';
 import AdminAuthPage from './Admin/AdminPages/AdminAuthPage';
 import ProtectedAdminRoute from './Admin/AdminComponent/ProtectedAdminRoute';
 import ProtectedSuperAdminRoute from './Admin/AdminComponent/ProtectedSuperAdminRoute';
 
 // Get base URL for GitHub Pages
 import Wishlist from './Client/ClientPages/Wishlist';
+import NotFound from './Client/ClientsComponent/NotFound';
 
 const basename = import.meta.env.BASE_URL;
 
@@ -128,6 +130,7 @@ const router = createBrowserRouter([
       { path: "/admin/seller-applications", element: <SellerApplications /> },
       { path: "/admin/reported-reviews", element: <ReviewModeration /> },
       { path: "/admin/site-content", element: <SiteContentManager /> },
+      { path: "/admin/security", element: <AdminSecuritySettings /> },
       {
         path: "/admin/superadmin",
         element: (
@@ -138,6 +141,11 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  // Catch-all — any path that doesn't match a route above (including a
+  // malformed URL, e.g. an accidental double slash) shows a proper 404
+  // page instead of React Router's raw developer-facing error screen.
+  { path: "*", element: <NotFound /> },
 ], {
   basename: basename,
 });

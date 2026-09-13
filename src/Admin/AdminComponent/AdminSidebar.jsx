@@ -10,12 +10,12 @@ import {
   FiLogOut,
   FiUser,
   FiMail,
-  FiPhone,
   FiBarChart2,
   FiShield,
   FiUserCheck,
   FiFlag,
-  FiFileText
+  FiFileText,
+  FiLock
 } from 'react-icons/fi';
 
 import './AdminSidebar.css';
@@ -82,7 +82,7 @@ const AdminSidebar = () => {
           {displayName}
         </p>
         <small className="sidebar-header-email">
-          {admin?.email || ''}
+          {admin?.companyEmail || ''}
         </small>
         
         {/* Hover hint */}
@@ -112,18 +112,12 @@ const AdminSidebar = () => {
             <div className="sidebar-popup-details">
               <div className="sidebar-popup-detail-item">
                 <FiMail className="sidebar-popup-detail-icon" />
-                <span>{admin?.email || '—'}</span>
+                <span>{admin?.companyEmail || '—'}</span>
               </div>
               <div className="sidebar-popup-detail-item">
                 <FiUser className="sidebar-popup-detail-icon" />
-                <span>{admin?.userName || '—'}</span>
+                <span>{admin?.employeeId || '—'}</span>
               </div>
-              {admin?.phone && (
-                <div className="sidebar-popup-detail-item">
-                  <FiPhone className="sidebar-popup-detail-icon" />
-                  <span>{admin.phone}</span>
-                </div>
-              )}
             </div>
 
             {/* Popup Actions */}
@@ -203,6 +197,14 @@ const AdminSidebar = () => {
         >
           <FiFileText className="sidebar-nav-icon" />
           <span className="sidebar-nav-text">Site Content</span>
+        </Link>
+
+        <Link
+          to="/admin/security"
+          className={`sidebar-nav-link ${isActive('/admin/security') ? 'sidebar-nav-link-active' : ''}`}
+        >
+          <FiLock className="sidebar-nav-icon" />
+          <span className="sidebar-nav-text">Security Settings</span>
         </Link>
 
         {isSuperAdmin && (

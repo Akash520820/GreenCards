@@ -352,3 +352,78 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ---- Tabs (Phase 1-8 dashboard additions) ---- */
+.superadmin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.superadmin-tab-btn {
+  padding: 0.65rem 1.1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #718096;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.superadmin-tab-btn.active {
+  color: #198754;
+  border-bottom-color: #198754;
+}
+
+.superadmin-tab-btn:hover:not(.active) {
+  color: #2d3748;
+}
+
+/* ---- Permission editor (Staff tab) ---- */
+.superadmin-perm-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.superadmin-perm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* ---- New access-request form ---- */
+.superadmin-new-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 480px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.superadmin-new-request-form input,
+.superadmin-new-request-form select,
+.superadmin-new-request-form textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.superadmin-new-request-form textarea {
+  min-height: 70px;
+  resize: vertical;
+}
