@@ -22,14 +22,15 @@ api.interceptors.response.use(
     const isStaffRequest = originalRequest.url?.startsWith("/staff") || originalRequest.url?.startsWith("/admin") || originalRequest.url?.startsWith("/superadmin");
     const refreshEndpoint = isStaffRequest ? "/staff/refresh-token" : "/users/refresh-token";
 
-    // Do not trigger refresh token loops for guest status checks, login
-    // endpoints, or the refresh call itself (either flavor)
+    // Do not trigger refresh token loops for login endpoints or the refresh
+    // call itself (either flavor). current-user/current-staff are NOT
+    // excluded — an expired access token there should trigger a silent
+    // refresh too, otherwise a page reload after token expiry forces a
+    // needless re-login even though a valid refresh token exists.
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url?.includes("/login") &&
-      !originalRequest.url?.includes("/current-user") &&
-      !originalRequest.url?.includes("/current-staff") &&
       !originalRequest.url?.includes("/refresh-token")
     ) {
       if (isRefreshing) {
