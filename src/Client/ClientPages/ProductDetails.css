@@ -235,6 +235,12 @@
   text-decoration: line-through;
 }
 
+.pd-size-fixed {
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Quantity Section */
 .pd-quantity-section {
   display: flex;

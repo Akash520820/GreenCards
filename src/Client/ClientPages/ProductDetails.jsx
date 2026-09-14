@@ -309,7 +309,7 @@ const ProductDetails = () => {
                     ))}
                   </div>
 
-                  {activeColorVariant?.sizes?.length > 1 && (
+                  {activeColorVariant?.sizes?.length > 1 ? (
                     <>
                       <label className="d-block mt-3 mb-2">Size:</label>
                       <div className="pd-size-buttons">
@@ -326,6 +326,17 @@ const ProductDetails = () => {
                         ))}
                       </div>
                     </>
+                  ) : (
+                    activeColorVariant?.sizes?.length === 1 && (
+                      <>
+                        <label className="d-block mt-3 mb-2">Size:</label>
+                        <div className="pd-size-buttons">
+                          <span className="pd-size-btn active pd-size-fixed">
+                            {activeColorVariant.sizes[0].size}
+                          </span>
+                        </div>
+                      </>
+                    )
                   )}
                 </div>
               )}
