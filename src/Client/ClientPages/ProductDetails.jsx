@@ -24,6 +24,9 @@ const ProductDetails = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reviews State
   const [reviews, setReviews] = useState([]);
@@ -50,6 +53,12 @@ const ProductDetails = () => {
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedImage(0);
+      setQuantity(1);
+      // auto-select when there's only one color option, otherwise force an explicit pick
+      setSelectedColor(
+        foundProduct.colorVariants?.length === 1 ? foundProduct.colorVariants[0].color : null
+      );
+      setSelectedSize(null);
 
       const related = getProductsByCategory(foundProduct.category)
         .filter((p) => p._id !== productId)
@@ -83,7 +92,41 @@ const ProductDetails = () => {
 
   const currentPrice = product.offerPrice || product.price;
 
-  const handleAddToCart = () => {
+  // ---- Variant derivation ----
+  const needsColor = (product.colorVariants?.length || 0) > 0;
+  const activeColorVariant = needsColor
+    ? product.colorVariants.find((cv) => cv.color === selectedColor)
+    : null;
+  const needsSize = (activeColorVariant?.sizes?.length || 0) > 1;
+  const variantReady = !needsColor || (!!selectedColor && (!needsSize || !!selectedSize));
+
+  const activeSizeEntry = activeColorVariant
+    ? activeColorVariant.sizes.find((s) => s.size === (selectedSize || activeColorVariant.sizes[0]?.size))
+    : null;
+  const selectedStock = needsColor ? activeSizeEntry?.stock ?? 0 : product.stock;
+
+  const buildVariant = () =>
+    needsColor
+      ? { color: selectedColor, size: selectedSize || activeColorVariant?.sizes[0]?.size }
+      : undefined;
+
+  const validateSelection = () => {
+    if (needsColor && !selectedColor) {
+      toast.error('Please select a color');
+      return false;
+    }
+    if (needsSize && !selectedSize) {
+      toast.error('Please select a size');
+      return false;
+    }
+    if (selectedStock <= 0) {
+      toast.error('This option is out of stock');
+      return false;
+    }
+    return true;
+  };
+
+  const handleAddToCart = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
@@ -94,22 +137,35 @@ const ProductDetails = () => {
       return;
     }
 
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
-    }
+    if (!validateSelection() || isSubmitting) return;
 
-    toast.success(`${product.name} added to cart!`);
+    setIsSubmitting(true);
+    const result = await addToCart(product, quantity, buildVariant());
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast.success(`${product.name} added to cart!`);
+    } else {
+      toast.error(result.error || 'Could not add to cart');
+    }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
 
     if (!isInCart) {
-      for (let i = 0; i < quantity; i++) {
-        addToCart(product);
+      if (!validateSelection() || isSubmitting) return;
+
+      setIsSubmitting(true);
+      const result = await addToCart(product, quantity, buildVariant());
+      setIsSubmitting(false);
+
+      if (!result.success) {
+        toast.error(result.error || 'Could not add to cart');
+        return;
       }
     }
     navigate('/cart');
@@ -233,6 +289,47 @@ const ProductDetails = () => {
                 <p className="pd-tax-info">Inclusive of all taxes</p>
               </div>
 
+              {/* Color / Size selection */}
+              {needsColor && (
+                <div className="pd-variant-section mb-4">
+                  <label className="d-block mb-2">Color:</label>
+                  <div className="pd-color-swatches">
+                    {product.colorVariants.map((cv) => (
+                      <button
+                        key={cv.color}
+                        type="button"
+                        className={`pd-color-swatch ${selectedColor === cv.color ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedColor(cv.color);
+                          setSelectedSize(null);
+                        }}
+                      >
+                        {cv.color}
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeColorVariant?.sizes?.length > 1 && (
+                    <>
+                      <label className="d-block mt-3 mb-2">Size:</label>
+                      <div className="pd-size-buttons">
+                        {activeColorVariant.sizes.map((s) => (
+                          <button
+                            key={s.size}
+                            type="button"
+                            disabled={s.stock <= 0}
+                            className={`pd-size-btn ${selectedSize === s.size ? 'active' : ''}`}
+                            onClick={() => setSelectedSize(s.size)}
+                          >
+                            {s.size}{s.stock <= 0 ? ' (Out of stock)' : ''}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
               {/* Quantity & Wishlist */}
               <div className="d-flex align-items-center gap-3 mb-4">
                 <div className="pd-quantity-section mb-0">
@@ -263,10 +360,21 @@ const ProductDetails = () => {
                 <button
                   className={`pd-add-to-cart-btn ${isInCart ? 'in-cart' : ''}`}
                   onClick={handleAddToCart}
+                  disabled={!isInCart && (!variantReady || selectedStock <= 0 || isSubmitting)}
                 >
-                  {isInCart ? 'Go to Cart' : 'Add to Cart'}
+                  {isInCart
+                    ? 'Go to Cart'
+                    : selectedStock <= 0 && variantReady
+                    ? 'Out of Stock'
+                    : isSubmitting
+                    ? 'Adding…'
+                    : 'Add to Cart'}
                 </button>
-                <button className="pd-buy-now-btn" onClick={handleBuyNow}>
+                <button
+                  className="pd-buy-now-btn"
+                  onClick={handleBuyNow}
+                  disabled={!isInCart && (!variantReady || selectedStock <= 0 || isSubmitting)}
+                >
                   Buy Now
                 </button>
               </div>

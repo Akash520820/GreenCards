@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineShoppingBag, HiCheck, HiStar, HiHeart, HiOutlineHeart } from 'react-icons/hi2';
@@ -14,13 +14,14 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     const inCart = cartItems.some((item) => item._id === product._id);
     setIsInCart(inCart);
   }, [cartItems, product._id]);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation();
 
     if (!isAuthenticated) {
@@ -30,14 +31,25 @@ const ProductCard = memo(({ product, onLoginRequired }) => {
       return;
     }
 
-    if (isInCart) return;
+    if (isInCart || isSubmittingRef.current) return;
 
+    // this product needs a color/size choice — the quick-add button has no
+    // picker, so send them to the product page instead of failing silently
+    if (product.colorVariants?.length > 0) {
+      navigate(`/product/${product._id}`);
+      return;
+    }
+
+    isSubmittingRef.current = true;
     setIsAdding(true);
-    addToCart(product);
 
-    setTimeout(() => {
-      setIsAdding(false);
-    }, 600);
+    const result = await addToCart(product);
+    if (!result.success) {
+      console.error('Add to cart failed:', result.error);
+    }
+
+    setIsAdding(false);
+    isSubmittingRef.current = false;
   };
 
   const handleWishlistToggle = async (e) => {
