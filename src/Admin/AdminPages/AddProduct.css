@@ -184,6 +184,245 @@
 }
 
 /* ========================================
+   HINTS / NOTES
+======================================== */
+.field-hint {
+  font-size: 0.825rem;
+  color: #718096;
+  margin: -0.25rem 0 0.75rem;
+}
+
+.required-mark {
+  color: #e53e3e;
+  font-weight: 700;
+}
+
+.optional-mark {
+  color: #a0aec0;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* ========================================
+   VARIANT-MODE QUESTION
+======================================== */
+.variant-choice-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.variant-choice-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-choice-btn:hover {
+  border-color: #4CAF50;
+}
+
+.variant-choice-btn.active {
+  background: #4CAF50;
+  border-color: #4CAF50;
+  color: white;
+}
+
+.variant-note {
+  background: #f0fdf4;
+  border: 1px solid #c6f6d5;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: -0.5rem 0 1.75rem;
+  color: #276749;
+}
+
+/* ========================================
+   ACTIVE TOGGLE
+======================================== */
+.toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.toggle-checkbox {
+  display: none;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #cbd5e0;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-checkbox:checked + .toggle-switch {
+  background: #4CAF50;
+}
+
+.toggle-checkbox:checked + .toggle-switch::after {
+  transform: translateX(20px);
+}
+
+.toggle-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+/* ========================================
+   COLOR VARIANTS
+======================================== */
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.add-color-btn,
+.add-size-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f0fdf4;
+  color: #2f855a;
+  border: 1.5px solid #9ae6b4;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-color-btn:hover,
+.add-size-btn:hover {
+  background: #c6f6d5;
+}
+
+.color-variant-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  background: #fafcfb;
+}
+
+.color-variant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.color-variant-index {
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 1rem;
+}
+
+.remove-color-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fff5f5;
+  color: #c53030;
+  border: 1.5px solid #feb2b2;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-color-btn:hover {
+  background: #fed7d7;
+}
+
+.color-image-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ========================================
+   SIZE TABLE
+======================================== */
+.size-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.size-table-head,
+.size-table-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1fr 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.size-table-head span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.size-table-row .form-input {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.remove-size-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff5f5;
+  color: #c53030;
+  border: 1.5px solid #feb2b2;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-size-btn:hover:not(:disabled) {
+  background: #fed7d7;
+}
+
+.remove-size-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ========================================
    SUBMIT BUTTON
 ======================================== */
 .submit-btn {
@@ -276,6 +515,22 @@
 
   .submit-btn {
     width: 100%;
+  }
+
+  .size-table-head {
+    display: none;
+  }
+
+  .size-table-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'size sku'
+      'pricemod stock'
+      'remove remove';
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
   }
 }
 
