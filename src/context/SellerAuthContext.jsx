@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import * as authApi from '../api/auth.api';
+import { useClientAuth } from './ClientAuthContext';
 
 const SellerAuthContext = createContext();
 
@@ -7,28 +8,30 @@ const SellerAuthContext = createContext();
 // through /become-seller and being approved by an admin (see
 // admin.controller.js -> approveSeller) — there is no seller signup here.
 // Staff accounts (admin/superadmin) have their own AdminAuthContext.
+//
+// SellerAuthProvider is mounted INSIDE ClientAuthProvider (see App.tsx), so
+// on initial load it reuses the user ClientAuthContext already fetched from
+// GET /users/current-user instead of firing a second, identical request —
+// previously both contexts called the same endpoint independently on every
+// page load, which was needlessly burning through the shared rate limit.
 
 export const SellerAuthProvider = ({ children }) => {
+  const { user: clientUser, isLoading: clientLoading } = useClientAuth();
   const [isSellerAuthenticated, setIsSellerAuthenticated] = useState(false);
   const [seller, setSeller] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await authApi.getCurrentUser();
-        if (res.data.role === 'seller') {
-          setSeller(res.data);
-          setIsSellerAuthenticated(true);
-        }
-      } catch {
-        // not logged in — fine, just stay logged out
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, []);
+    if (clientLoading) return; // wait for ClientAuthContext's single current-user check to finish
+    if (clientUser?.role === 'seller') {
+      setSeller(clientUser);
+      setIsSellerAuthenticated(true);
+    } else {
+      setSeller(null);
+      setIsSellerAuthenticated(false);
+    }
+    setLoading(false);
+  }, [clientUser, clientLoading]);
 
   const sellerLogin = async (email, password) => {
     try {
