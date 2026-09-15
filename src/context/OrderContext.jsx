@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import * as ordersApi from '../api/orders.api';
 
 const OrderContext = createContext();
@@ -8,7 +8,14 @@ export const OrderProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchUserOrders = async () => {
+  // useCallback with an empty dependency array keeps this function's identity
+  // stable across re-renders. Without it, every setLoading/setOrders call
+  // inside this function re-renders OrderProvider, which recreates this
+  // function, which changes the identity any consumer's useEffect depends
+  // on (e.g. MyOrders.jsx's `loadOrders` useCallback) — causing that effect
+  // to re-fire immediately and re-fetch in an infinite loop, which is what
+  // was actually causing "My Orders" to appear stuck loading.
+  const fetchUserOrders = useCallback(async () => {
     try {
       setLoading(true);
       const res = await ordersApi.getMyOrders();
@@ -20,10 +27,10 @@ export const OrderProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // admin only — status: "processing" | "shipped" | "delivered" | "cancelled"
-  const fetchAllOrders = async (params = {}) => {
+  const fetchAllOrders = useCallback(async (params = {}) => {
     try {
       setLoading(true);
       const res = await ordersApi.getAllOrders(params);
@@ -36,7 +43,7 @@ export const OrderProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // payload: { shippingAddress, paymentMethod, productId?, quantity?, variant?,
   //            razorpayOrderId?, razorpayPaymentId?, razorpaySignature? }
