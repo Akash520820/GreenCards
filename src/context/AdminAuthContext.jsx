@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useCallback, useRef } from 'react';
 import * as staffApi from '../api/staff.api';
 
 const AdminAuthContext = createContext();
@@ -14,21 +14,32 @@ const AdminAuthContext = createContext();
 export const AdminAuthProvider = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [admin, setAdmin] = useState(null);
+  // Starts true — meaning "not yet determined" — but nothing outside
+  // ProtectedAdminRoute reads this, so it never blocks rendering the rest
+  // of the app (see the removed `{!loading && children}` gate below).
   const [loading, setLoading] = useState(true);
+  const checkedRef = useRef(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await staffApi.getCurrentStaff();
-        setAdmin(res.data);
-        setIsAdminAuthenticated(true);
-      } catch {
-        // not logged in — fine, just stay logged out
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
+  // Lazily triggered by ProtectedAdminRoute the moment someone actually
+  // lands on an /admin/* route — via a full reload OR client-side
+  // navigation — rather than running unconditionally on every single page
+  // load regardless of route. This is what previously fired
+  // GET /staff/current-staff (plus, after the refresh-retry fix, an
+  // extra POST /staff/refresh-token) for every visitor on every page,
+  // even customers who never go near /admin. checkedRef ensures it only
+  // ever runs once per app session.
+  const checkAdminAuth = useCallback(async () => {
+    if (checkedRef.current) return;
+    checkedRef.current = true;
+    try {
+      const res = await staffApi.getCurrentStaff();
+      setAdmin(res.data);
+      setIsAdminAuthenticated(true);
+    } catch {
+      // not logged in — fine, just stay logged out
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Step 1: password login. If the account has MFA enabled, this does NOT
@@ -86,6 +97,7 @@ export const AdminAuthProvider = ({ children }) => {
     isAdminAuthenticated,
     admin,
     loading,
+    checkAdminAuth,
     adminLogin,
     adminVerifyMfa,
     adminSignup,
@@ -94,7 +106,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   return (
     <AdminAuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AdminAuthContext.Provider>
   );
 };
