@@ -191,6 +191,7 @@ const ManageInventory = () => {
           <thead>
             <tr>
               <th className="admin-table-header">Product</th>
+              <th className="admin-table-header">Seller / Store</th>
               <th className="admin-table-header">Category</th>
               <th className="admin-table-header">Price</th>
               <th className="admin-table-header">Quantity</th>
@@ -214,6 +215,21 @@ const ManageInventory = () => {
                       />
                       <span className="admin-product-name">{product.name}</span>
                     </div>
+                  </td>
+                  <td className="admin-table-cell">
+                    <span 
+                      style={{
+                        display: 'inline-block',
+                        fontSize: '0.8rem',
+                        background: '#e0f2fe',
+                        color: '#0369a1',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontWeight: '600'
+                      }}
+                    >
+                      🏪 {product.createdBy?.storeName || product.createdBy?.fullName || product.createdBy?.email || 'SuperAdmin'}
+                    </span>
                   </td>
                   <td className="admin-table-cell admin-category-cell">
                     {product.category}

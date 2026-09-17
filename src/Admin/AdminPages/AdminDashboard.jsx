@@ -144,7 +144,12 @@ const AdminDashboard = () => {
       </div>
 
       <div className="stats-grid">
-        <div className="stat-card stat-card-primary">
+        <div 
+          className="stat-card stat-card-primary"
+          onClick={() => navigate('/admin/inventory')}
+          style={{ cursor: 'pointer' }}
+          title="Click to view Inventory"
+        >
           <div className="stat-icon"><FiPackage /></div>
           <div className="stat-content">
             <h3 className="stat-value">{stats.totalProducts}</h3>
@@ -152,7 +157,12 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card stat-card-success">
+        <div 
+          className="stat-card stat-card-success"
+          onClick={() => navigate('/admin/orders')}
+          style={{ cursor: 'pointer' }}
+          title="Click to view All Orders"
+        >
           <div className="stat-icon"><FiShoppingCart /></div>
           <div className="stat-content">
             <h3 className="stat-value">{stats.totalOrders}</h3>
@@ -160,7 +170,12 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card stat-card-warning">
+        <div 
+          className="stat-card stat-card-warning"
+          onClick={() => navigate('/admin/orders')}
+          style={{ cursor: 'pointer' }}
+          title="Click to view Pending Orders"
+        >
           <div className="stat-icon"><FiClock /></div>
           <div className="stat-content">
             <h3 className="stat-value">{stats.pendingOrders}</h3>
@@ -168,7 +183,12 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card stat-card-info">
+        <div 
+          className="stat-card stat-card-info"
+          onClick={() => navigate('/admin/analytics')}
+          style={{ cursor: 'pointer' }}
+          title="Click to view Sales Analytics"
+        >
           <div className="stat-icon"><FiDollarSign /></div>
           <div className="stat-content">
             <h3 className="stat-value">₹{stats.totalRevenue.toLocaleString()}</h3>

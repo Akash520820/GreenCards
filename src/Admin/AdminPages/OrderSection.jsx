@@ -136,6 +136,21 @@ const OrderSection = () => {
                         <p className="admin-product-quantity">
                           Qty: <span className="quantity-value">{item.quantity}</span>
                         </p>
+                        <span 
+                          className="admin-seller-badge"
+                          style={{
+                            display: 'inline-block',
+                            fontSize: '0.75rem',
+                            background: '#e0f2fe',
+                            color: '#0369a1',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontWeight: '600',
+                            marginTop: '4px'
+                          }}
+                        >
+                          🏪 Store: {item.seller?.storeName || item.seller?.fullName || item.seller?.email || 'SuperAdmin'}
+                        </span>
                       </div>
                     </div>
                   ))}

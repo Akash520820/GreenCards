@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../../context/ProductContext';
 import * as productsApi from '../../api/products.api';
+import * as adminApi from '../../api/admin.api';
 import toast, { Toaster } from 'react-hot-toast';
 import './AddProduct.css';
 
@@ -20,12 +21,14 @@ const emptyColorVariant = () => ({
 const AddProduct = () => {
   const navigate = useNavigate();
   const { addProduct, categories } = useProducts();
+  const [sellers, setSellers] = useState([]);
 
   // ---- Simple / top-level fields ----
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     category: '',
+    sellerId: '',
     brand: '',
     sku: '',
     price: '',
@@ -33,6 +36,18 @@ const AddProduct = () => {
     stock: '',
     isActive: true,
   });
+
+  useEffect(() => {
+    const fetchSellers = async () => {
+      try {
+        const res = await adminApi.getSellersByStatus('approved');
+        if (res.data) setSellers(res.data);
+      } catch (err) {
+        console.error('Failed to load sellers list:', err);
+      }
+    };
+    fetchSellers();
+  }, []);
 
   // ---- Base product images ----
   // Required when the product has NO color variants (this is its only image set then).
@@ -478,6 +493,30 @@ const AddProduct = () => {
               No categories yet — create one from your database/admin tools first.
             </small>
           )}
+        </div>
+
+        {/* ---------------- Seller / Store Selection (Admin/SuperAdmin feature) ---------------- */}
+        <div className="form-section">
+          <label htmlFor="sellerId" className="form-label">
+            Select Seller / Store <span className="optional-mark">(optional — default: SuperAdmin)</span>
+          </label>
+          <select
+            id="sellerId"
+            name="sellerId"
+            value={formData.sellerId}
+            onChange={handleInputChange}
+            className="form-select"
+          >
+            <option value="">Default (SuperAdmin / Admin Store)</option>
+            {sellers.map((s) => (
+              <option key={s._id} value={s.userId?._id || s._id}>
+                {s.storeName || s.userId?.fullName || s.userId?.userName || s.companyEmail} ({s.storeCategory || 'Seller'})
+              </option>
+            ))}
+          </select>
+          <p className="field-hint">
+            Specify which seller account requested or owns this product.
+          </p>
         </div>
 
         {/* ---------------- Brand ---------------- */}

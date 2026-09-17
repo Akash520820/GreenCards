@@ -33,3 +33,9 @@ export const addColorVariantImages = (productId, formData) =>
       headers: { "Content-Type": "multipart/form-data" },
     })
   );
+
+export const getBestSellers = (params = {}) =>
+  unwrap(api.get("/products/bestsellers", { params }));
+
+export const getFlashSaleProducts = (params = {}) =>
+  unwrap(api.get("/products/flash-sale", { params }));

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   FiUsers,
@@ -25,6 +26,7 @@ const PAGE_SIZE = 10;
 const TABS = ['Overview', 'Users', 'Staff', 'Access Requests', 'Audit Log'];
 
 const SuperAdminDashboard = () => {
+  const navigate = useNavigate();
   const { admin } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('Overview');
 
@@ -272,35 +274,75 @@ const SuperAdminDashboard = () => {
       {activeTab === 'Overview' && (
         <>
           <div className="superadmin-stats-grid">
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => setActiveTab('Users')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage Users"
+            >
               <div className="superadmin-stat-icon users"><FiUsers /></div>
               <div><h3>{dashboard.totalUsers}</h3><p>Customers</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => setActiveTab('Staff')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage Staff"
+            >
               <div className="superadmin-stat-icon admins"><FiShield /></div>
               <div><h3>{dashboard.totalAdmins + dashboard.totalSuperAdmins}</h3><p>Admins & Super Admins</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/inventory')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Inventory"
+            >
               <div className="superadmin-stat-icon products"><FiPackage /></div>
               <div><h3>{dashboard.totalProducts}</h3><p>Products</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/site-content')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Categories"
+            >
               <div className="superadmin-stat-icon categories"><FiGrid /></div>
               <div><h3>{dashboard.totalCategories}</h3><p>Categories</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/orders')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Orders"
+            >
               <div className="superadmin-stat-icon orders"><FiShoppingBag /></div>
               <div><h3>{dashboard.totalOrders}</h3><p>Total Orders</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/reviews')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Returns & Reviews"
+            >
               <div className="superadmin-stat-icon returns"><FiRotateCcw /></div>
               <div><h3>{dashboard.totalReturns}</h3><p>Total Returns</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/analytics')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Revenue Analytics"
+            >
               <div className="superadmin-stat-icon revenue"><FiDollarSign /></div>
               <div><h3>₹{dashboard.totalRevenue.toLocaleString()}</h3><p>Revenue (paid orders)</p></div>
             </div>
-            <div className="superadmin-stat-card">
+            <div 
+              className="superadmin-stat-card clickable-superadmin-card"
+              onClick={() => navigate('/admin/reviews')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view Pending Reviews"
+            >
               <div className="superadmin-stat-icon pending"><FiClock /></div>
               <div><h3>{dashboard.pendingReturnsCount}</h3><p>Returns Awaiting Review</p></div>
             </div>

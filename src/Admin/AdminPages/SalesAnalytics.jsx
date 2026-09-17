@@ -274,6 +274,27 @@ const SalesAnalytics = () => {
               <span className="legend-value">{analytics.totalItemsSold}</span>
             </div>
           </div>
+
+          {/* Order Fulfillment Pipeline Breakdown (Courier Handover / Transit Status) */}
+          <div className="fulfillment-pipeline-widget" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a', marginBottom: '0.75rem' }}>
+              📦 Order Fulfillment Pipeline
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0.6rem', background: '#fef3c7', borderRadius: '6px', color: '#92400e', fontWeight: '600' }}>
+                <span>Pending Courier Handover:</span>
+                <span>{orders.filter(o => o.orderStatus === 'processing').length} orders</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0.6rem', background: '#e0f2fe', borderRadius: '6px', color: '#0369a1', fontWeight: '600' }}>
+                <span>In Transit (Shipped):</span>
+                <span>{orders.filter(o => o.orderStatus === 'shipped').length} orders</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0.6rem', background: '#dcfce7', borderRadius: '6px', color: '#166534', fontWeight: '600' }}>
+                <span>Delivered to Customer:</span>
+                <span>{orders.filter(o => o.orderStatus === 'delivered').length} orders</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Revenue Updates */}
